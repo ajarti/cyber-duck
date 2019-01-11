@@ -224,6 +224,11 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        /*
+         * 3rd Party Providers...
+         */
+        'Image' => Intervention\Image\Facades\Image::class
+
     ],
 
 ];

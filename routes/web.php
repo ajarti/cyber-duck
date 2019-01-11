@@ -12,5 +12,27 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('app');
 });
+
+/**
+ * Auth routes (N.B. no registration)
+ */
+Auth::routes(['register' => false]);
+
+/**
+ * Protected Pages.
+ */
+Route::group(['middleware' => 'auth'], function () {
+
+    // Dashboard
+    Route::get('/app', 'AppController@index');
+
+    // Companies
+    Route::post('/companies/search', 'CompanyController@search');
+
+    // Employees
+    Route::post('/employees/search', 'EmployeeController@search');
+
+});
+
