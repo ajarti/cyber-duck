@@ -24,11 +24,11 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 // Catch Ajax errors.
 window.axios.interceptors.response.use((response) => {
     return response
-}, function (error) {
+}, function(error){
     let originalRequest = error.config
 
     // Logged out (no auth)
-    if (error.response.status === 401 ) {
+    if ( error.response.status === 401 ) {
         window.location.href = '/';
         return
     }

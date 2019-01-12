@@ -32,7 +32,6 @@ module.exports = {
             }
             EventBus.$emit('snackmessage', messagePacket);
         },
-
         clear(field)
         {
             var self  = this;
@@ -104,7 +103,7 @@ module.exports = {
         highlight(value, field)
         {
             var self  = this;
-            var field = field || 'keyword';
+            var field = field || 'query';
             var value = value || '';
 
             // Only if needed.
@@ -128,7 +127,7 @@ module.exports = {
 
                 if ( _.isString(value) && !_.isEmpty(value) ) {
                     var value = value.replace(search, function(match){
-                        return '<span class="highlight">' + match + '</span>';
+                        return '<span class="lime lighten-3">' + match + '</span>';
                     });
                 }
                 return value;

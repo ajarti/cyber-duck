@@ -59,11 +59,17 @@ class EmployeeController extends Controller
 
         // Check for q (query)
         if ( !empty($q) ) {
+
             $query
                 ->where('first_name', 'LIKE', '%' . $q . '%')
                 ->orWhere('last_name', 'LIKE', '%' . $q . '%')
                 ->orWhere('email', 'LIKE', '%' . $q . '%')
                 ->orWhere('phone', 'LIKE', '%' . $q . '%');
+
+            // Check Company Name.
+            $query->orWhereHas('company', function ($query) use ($q) {
+                $query->where('name', 'like', '%' . $q . '%');
+                });
         }
 
         // Latest

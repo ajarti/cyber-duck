@@ -1830,6 +1830,48 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // Mixins
 
 
@@ -1849,12 +1891,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         sortable: false
       }, {
         text: 'COMPANY NAME',
-        width: '50%',
+        width: '30%',
         class: 'body-2',
         sortable: false
       }, {
         text: 'EMAIL',
         width: '30%',
+        class: 'body-2',
+        sortable: false
+      }, {
+        text: '',
+        width: '10%',
         class: 'body-2',
         sortable: false
       }],
@@ -1892,6 +1939,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         },
         flag: 'loadingCompanies'
       });
+    },
+    showOver: function showOver(company, direction) {
+      var self = this;
+      window.log('OVER', direction, company);
     }
   },
   mounted: function mounted() {
@@ -1996,6 +2047,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 // Mixins
 
 
@@ -2010,12 +2069,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         width: '10%'
       }, "sortable", false), {
         text: 'EMPLOYEE',
-        width: '50%',
+        width: '40%',
         class: 'body-2',
         sortable: false
       }, {
         text: 'EMAIL',
-        width: '30%',
+        width: '20%',
+        class: 'body-2',
+        sortable: false
+      }, {
+        text: 'PHONE',
+        width: '20%',
         class: 'body-2',
         sortable: false
       }],
@@ -2025,6 +2089,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
   },
   methods: {
+    edit: function edit(employee) {
+      window.log(employee);
+    },
     loadEmployees: function loadEmployees() {
       var self = this;
       self.fetch({
@@ -2357,63 +2424,172 @@ var render = function() {
               key: "items",
               fn: function(props) {
                 return [
-                  _c("tr", { attrs: { active: props.selected } }, [
-                    _c(
-                      "td",
-                      { staticClass: "pa-4" },
-                      [
-                        _c("v-checkbox", {
-                          attrs: { primary: "", "hide-details": "" },
-                          model: {
-                            value: props.selected,
-                            callback: function($$v) {
-                              _vm.$set(props, "selected", $$v)
-                            },
-                            expression: "props.selected"
-                          }
-                        })
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "td",
-                      [
-                        _c(
-                          "v-avatar",
-                          { attrs: { size: 50, color: "grey lighten-4" } },
-                          [
-                            _c("img", {
-                              attrs: {
-                                src: "/storage/logos/" + props.item.logo
-                              }
-                            })
-                          ]
-                        )
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _c("a", [_vm._v(_vm._s(props.item.name))]),
-                      _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "body-1 grey--text text--lighten-1" },
-                        [
-                          _vm._v(
-                            "\n                        " +
-                              _vm._s(props.item.website) +
-                              "\n                    "
+                  _c("v-hover", {
+                    scopedSlots: _vm._u([
+                      {
+                        key: "default",
+                        fn: function(ref) {
+                          var hover = ref.hover
+                          return _c(
+                            "tr",
+                            { attrs: { active: props.selected } },
+                            [
+                              _c(
+                                "td",
+                                { staticClass: "pa-4" },
+                                [
+                                  _c("v-checkbox", {
+                                    attrs: { primary: "", "hide-details": "" },
+                                    model: {
+                                      value: props.selected,
+                                      callback: function($$v) {
+                                        _vm.$set(props, "selected", $$v)
+                                      },
+                                      expression: "props.selected"
+                                    }
+                                  })
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                [
+                                  _c(
+                                    "v-avatar",
+                                    {
+                                      attrs: {
+                                        size: 50,
+                                        color: "grey lighten-4"
+                                      }
+                                    },
+                                    [
+                                      _c("img", {
+                                        attrs: {
+                                          src:
+                                            "/storage/logos/" + props.item.logo
+                                        }
+                                      })
+                                    ]
+                                  )
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c("td", { staticClass: "text-xs-left" }, [
+                                _c("a", [
+                                  _c("span", {
+                                    domProps: {
+                                      innerHTML: _vm._s(
+                                        _vm.highlight(props.item.name)
+                                      )
+                                    }
+                                  })
+                                ]),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  {
+                                    staticClass:
+                                      "body-1 grey--text text--lighten-1"
+                                  },
+                                  [
+                                    _c("span", {
+                                      domProps: {
+                                        innerHTML: _vm._s(
+                                          _vm.highlight(props.item.website)
+                                        )
+                                      }
+                                    })
+                                  ]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("td", { staticClass: "text-xs-left" }, [
+                                _c("span", {
+                                  domProps: {
+                                    innerHTML: _vm._s(
+                                      _vm.highlight(props.item.email)
+                                    )
+                                  }
+                                })
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                [
+                                  hover
+                                    ? _c(
+                                        "v-speed-dial",
+                                        {
+                                          attrs: {
+                                            direction: "left",
+                                            "open-on-hover": "",
+                                            transition: "scale-transition"
+                                          }
+                                        },
+                                        [
+                                          _c(
+                                            "v-btn",
+                                            {
+                                              attrs: {
+                                                slot: "activator",
+                                                color: "blue darken-2",
+                                                dark: "",
+                                                fab: "",
+                                                small: "",
+                                                flat: ""
+                                              },
+                                              slot: "activator"
+                                            },
+                                            [
+                                              _c("v-icon", [
+                                                _vm._v("more_vert")
+                                              ])
+                                            ],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-btn",
+                                            {
+                                              attrs: {
+                                                fab: "",
+                                                dark: "",
+                                                small: "",
+                                                color: "primary"
+                                              }
+                                            },
+                                            [_c("v-icon", [_vm._v("edit")])],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-btn",
+                                            {
+                                              attrs: {
+                                                fab: "",
+                                                dark: "",
+                                                small: "",
+                                                color: "red"
+                                              }
+                                            },
+                                            [_c("v-icon", [_vm._v("delete")])],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    : _c("span", [_vm._v(" ")])
+                                ],
+                                1
+                              )
+                            ]
                           )
-                        ]
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.email))
+                        }
+                      }
                     ])
-                  ])
+                  })
                 ]
               }
             }
@@ -2549,51 +2725,86 @@ var render = function() {
               key: "items",
               fn: function(props) {
                 return [
-                  _c("tr", { attrs: { active: props.selected } }, [
-                    _c(
-                      "td",
-                      { staticClass: "pa-4" },
-                      [
-                        _c("v-checkbox", {
-                          attrs: { primary: "", "hide-details": "" },
-                          model: {
-                            value: props.selected,
-                            callback: function($$v) {
-                              _vm.$set(props, "selected", $$v)
-                            },
-                            expression: "props.selected"
-                          }
-                        })
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _c("a", [
-                        _vm._v(
-                          _vm._s(props.item.first_name) +
-                            " " +
-                            _vm._s(props.item.last_name)
+                  _c(
+                    "tr",
+                    {
+                      attrs: { active: props.selected },
+                      on: {
+                        click: function($event) {
+                          _vm.edit(props.item)
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "td",
+                        { staticClass: "pa-4" },
+                        [
+                          _c("v-checkbox", {
+                            attrs: { primary: "", "hide-details": "" },
+                            model: {
+                              value: props.selected,
+                              callback: function($$v) {
+                                _vm.$set(props, "selected", $$v)
+                              },
+                              expression: "props.selected"
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("td", { staticClass: "text-xs-left" }, [
+                        _c("a", [
+                          _c("span", {
+                            domProps: {
+                              innerHTML: _vm._s(
+                                _vm.highlight(props.item.first_name)
+                              )
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("span", {
+                            domProps: {
+                              innerHTML: _vm._s(
+                                _vm.highlight(props.item.last_name)
+                              )
+                            }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "body-1 grey--text text--lighten-1" },
+                          [
+                            _c("span", {
+                              domProps: {
+                                innerHTML: _vm._s(
+                                  _vm.highlight(props.item.company.name)
+                                )
+                              }
+                            })
+                          ]
                         )
                       ]),
                       _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "body-1 grey--text text--lighten-1" },
-                        [
-                          _vm._v(
-                            "\n                        " +
-                              _vm._s(props.item.email) +
-                              "\n                    "
-                          )
-                        ]
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.phone))
-                    ])
-                  ])
+                      _c("td", { staticClass: "text-xs-left" }, [
+                        _c("span", {
+                          domProps: {
+                            innerHTML: _vm._s(_vm.highlight(props.item.email))
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("td", { staticClass: "text-xs-left" }, [
+                        _c("span", {
+                          domProps: {
+                            innerHTML: _vm._s(_vm.highlight(props.item.phone))
+                          }
+                        })
+                      ])
+                    ]
+                  )
                 ]
               }
             }
@@ -3333,7 +3544,7 @@ module.exports = {
     },
     highlight: function highlight(value, field) {
       var self = this;
-      var field = field || 'keyword';
+      var field = field || 'query';
       var value = value || ''; // Only if needed.
 
       if (_.has(self, field) && _.isEmpty(self[field])) {
@@ -3353,7 +3564,7 @@ module.exports = {
 
         if (_.isString(value) && !_.isEmpty(value)) {
           var value = value.replace(search, function (match) {
-            return '<span class="highlight">' + match + '</span>';
+            return '<span class="lime lighten-3">' + match + '</span>';
           });
         }
 

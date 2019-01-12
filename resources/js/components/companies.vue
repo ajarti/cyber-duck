@@ -24,7 +24,8 @@
         >
             <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
             <template slot="items" slot-scope="props">
-                <tr :active="props.selected">
+                <v-hover>
+                <tr :active="props.selected" slot-scope="{ hover }">
                     <td class="pa-4">
                         <v-checkbox
                                 v-model="props.selected"
@@ -41,13 +42,54 @@
                         </v-avatar>
                     </td>
                     <td class="text-xs-left">
-                        <a>{{ props.item.name }}</a>
+                        <a><span v-html="highlight(props.item.name)"></span></a>
                         <div class="body-1 grey--text text--lighten-1">
-                            {{ props.item.website }}
+                            <span v-html="highlight(props.item.website)"></span>
                         </div>
                     </td>
-                    <td class="text-xs-left">{{ props.item.email }}</td>
+                    <td class="text-xs-left">
+                        <span v-html="highlight(props.item.email)"></span>
+
+                    </td>
+                    <td>
+                        <v-speed-dial
+                                direction="left"
+                                open-on-hover
+                                transition="scale-transition"
+                                v-if="hover"
+                        >
+                            <v-btn
+                                    slot="activator"
+                                    color="blue darken-2"
+                                    dark
+                                    fab
+                                    small
+                                    flat
+                            >
+                                <v-icon>more_vert</v-icon>
+                                <!--<v-icon>close</v-icon>-->
+                            </v-btn>
+                            <v-btn
+                                    fab
+                                    dark
+                                    small
+                                    color="primary"
+                            >
+                                <v-icon>edit</v-icon>
+                            </v-btn>
+                            <v-btn
+                                    fab
+                                    dark
+                                    small
+                                    color="red"
+                            >
+                                <v-icon>delete</v-icon>
+                            </v-btn>
+                        </v-speed-dial>
+                        <span v-else>&nbsp;</span>
+                    </td>
                 </tr>
+                </v-hover>
             </template>
             <v-alert slot="no-results" :value="true" color="error" icon="warning">
                 Your search for "{{ query }}" found no companies.
@@ -60,6 +102,7 @@
 
 
 <script>
+
     // Mixins
     import ajaxMixin from '../ajax-mixin';
     import sharedMethodsMixin from '../shared-methods-mixin';
@@ -73,8 +116,9 @@
                 headers          : [
                     { text : '', sortable : false, width : '10%', sortable : false, },
                     { text : 'LOGO', width : '10%', class : 'body-2', sortable : false, },
-                    { text : 'COMPANY NAME', width : '50%', class : 'body-2', sortable : false, },
+                    { text : 'COMPANY NAME', width : '30%', class : 'body-2', sortable : false, },
                     { text : 'EMAIL', width : '30%', class : 'body-2', sortable : false, },
+                    { text : '', width : '10%', class : 'body-2', sortable : false, },
                 ],
                 loadingCompanies : false,
                 masterCollection : 'companies',
@@ -108,6 +152,11 @@
                     },
                     flag    : 'loadingCompanies'
                 });
+            },
+            showOver(company, direction)
+            {
+                var self = this;
+                window.log('OVER', direction, company);
             }
         },
         mounted()
