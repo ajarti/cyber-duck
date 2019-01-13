@@ -38,12 +38,16 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Companies
     Route::post('/companies/search', 'CompanyController@search');
+    Route::post('/company/create', 'CompanyController@store');
     Route::post('/company/delete', 'CompanyController@delete');
     Route::post('/company/restore', 'CompanyController@restore');
+    Route::post('/company/update', 'CompanyController@update');
     Route::post('/company/upload/logo', 'CompanyController@uploadLogo'); // May be other types in future.
 
     // Employees
     Route::post('/employees/search', 'EmployeeController@search');
+    Route::post('/employee/delete', 'EmployeeController@delete');
+    Route::post('/employee/restore', 'EmployeeController@restore');
 
 });
 

@@ -6,6 +6,7 @@ use App\Employee;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeTransformer;
 use App\Http\Requests\EmployeeSearchRequest;
+use App\Http\Requests\DeleteEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -27,13 +28,26 @@ class EmployeeController extends Controller
     /**
      * Remove the specified resource from storage. (Not destroy, soft delete)
      *
-     * @param  \App\Employee $employee
+     * @param DeleteEmployeeRequest $request
+     * @param  \App\Employee        $employee
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
-    public function delete(Employee $employee)
+    public function delete(DeleteEmployeeRequest $request, Employee $employee)
     {
-        //
+        $employee = $employee->find($request->get('id', 0));
+
+        // Make sure we have a employee.
+        if ( is_a($employee, Employee::class) ) {
+            if ( $employee->delete() ) {
+                return $this->sendAjaxMessage(['message' => $employee->first_name . ' was deleted successfully']);
+            } else {
+                return $this->sendAjaxError(['message' => 'Oops, we could not delete that employee something unkosher occurred']);
+            }
+        } else {
+            return $this->sendAjaxError(['message' => 'We could not delete that employee as we could not locate them in the database']);
+        }
     }
 
 
@@ -53,6 +67,11 @@ class EmployeeController extends Controller
         // Set Per Page
         $this->setPerPage($request->get('per_page', 10));
 
+        // Deleted?
+        if ( $request->get('deleted', 0) ) {
+            $this->setWithDeleted(true);
+        }
+
         // Start query.
         $query = $this->newQuery();
         $this->setWiths(['company']);
@@ -69,7 +88,7 @@ class EmployeeController extends Controller
             // Check Company Name.
             $query->orWhereHas('company', function ($query) use ($q) {
                 $query->where('name', 'like', '%' . $q . '%');
-                });
+            });
         }
 
         // Latest

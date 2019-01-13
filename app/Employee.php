@@ -9,6 +9,13 @@ class Employee extends Model
 {
     use softDeletes;
 
+    /**
+     * Disable Mass Assignment protection.
+     *
+     * @var array
+     */
+    protected $guarded = [];
+
 
     // ---------------------------  Relationships ----------------------------- //
 

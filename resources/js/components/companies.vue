@@ -48,10 +48,10 @@
                             <tr :active="props.selected" slot-scope="{ hover }">
                                 <td class="pa-4">
                                     <v-checkbox
-                                            v-model="props.selected"
-                                            primary
-                                            hide-details
                                             :disabled="isDeleted(props.item)"
+                                            hide-details
+                                            primary
+                                            v-model="props.selected"
                                     ></v-checkbox>
                                 </td>
                                 <td :class="{deleted : isDeleted(props.item)}">
@@ -143,8 +143,7 @@
             </v-flex>
         </v-layout>
 
-        <v-dialog v-model="showEditor" persistent max-width="800px">
-            <v-btn slot="activator" color="primary" dark>Open Dialog</v-btn>
+        <v-dialog v-model="showEditor" persistent max-width="900px">
             <v-card>
                 <v-card-title
                         class="headline blue darken-2"
@@ -168,18 +167,22 @@
                                         ref="form"
                                         v-model="companyValid"
                                         lazy-validation
+                                        autocomplete="off"
                                 >
-                                    <v-layout wrap pa-3>
+                                    <!--v-if to ensure initialisation on each toggle.-->
+                                    <v-layout wrap pa-3 v-if="showEditor">
                                         <v-flex xs12>
                                             <v-text-field
                                                     counter="75"
                                                     :disabled="isDeleted(currentCompany)"
                                                     :error-messages="errorMessages"
-                                                    label="Name*"
+                                                    label="Company Name*"
                                                     maxlength="75"
                                                     required
                                                     :rules="[rules.required]"
                                                     v-model="currentCompany.name"
+                                                    :autofocus="creating"
+                                                    browser-autocomplete="off"
                                             >
                                             </v-text-field>
                                         </v-flex>
@@ -189,19 +192,22 @@
                                                     :disabled="isDeleted(currentCompany)"
                                                     label="Email"
                                                     maxlength="64"
-                                                    required
+                                                    type="email"
                                                     :rules="[rules.email]"
                                                     v-model="currentCompany.email"
+                                                    browser-autocomplete="off"
                                             >
                                             </v-text-field>
                                         </v-flex>
                                         <v-flex xs12>
                                             <v-text-field
+                                                    counter="50"
                                                     :disabled="isDeleted(currentCompany)"
                                                     label="Website"
-                                                    prefix="http://"
-                                                    required
+                                                    maxlength="50"
+                                                    :rules="[rules.http,rules.url]"
                                                     v-model="currentCompany.website"
+                                                    browser-autocomplete="off"
                                             >
                                             </v-text-field>
                                         </v-flex>
@@ -230,56 +236,18 @@
                                 </div>
                             </v-flex>
                         </v-layout>
-
-
-                        <!--<v-layout wrap>-->
-                        <!--<v-flex xs12 sm6 md4>-->
-                        <!--<v-text-field label="Legal first name*" required></v-text-field>-->
-                        <!--</v-flex>-->
-                        <!--<v-flex xs12 sm6 md4>-->
-                        <!--<v-text-field label="Legal middle name" hint="example of helper text only on focus"></v-text-field>-->
-                        <!--</v-flex>-->
-                        <!--<v-flex xs12 sm6 md4>-->
-                        <!--<v-text-field-->
-                        <!--label="Legal last name*"-->
-                        <!--hint="example of persistent helper text"-->
-                        <!--persistent-hint-->
-                        <!--required-->
-                        <!--&gt;</v-text-field>-->
-                        <!--</v-flex>-->
-                        <!--<v-flex xs12>-->
-                        <!--<v-text-field label="Email*" required></v-text-field>-->
-                        <!--</v-flex>-->
-                        <!--<v-flex xs12>-->
-                        <!--<v-text-field label="Password*" type="password" required></v-text-field>-->
-                        <!--</v-flex>-->
-                        <!--<v-flex xs12 sm6>-->
-                        <!--<v-select-->
-                        <!--:items="['0-17', '18-29', '30-54', '54+']"-->
-                        <!--label="Age*"-->
-                        <!--required-->
-                        <!--&gt;</v-select>-->
-                        <!--</v-flex>-->
-                        <!--<v-flex xs12 sm6>-->
-                        <!--<v-autocomplete-->
-                        <!--:items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"-->
-                        <!--label="Interests"-->
-                        <!--multiple-->
-                        <!--&gt;</v-autocomplete>-->
-                        <!--</v-flex>-->
-                        <!--</v-layout>-->
                     </v-container>
                     <small>
                         <div class="font-weight-bold mb-2" v-if="isDeleted(currentCompany)"> You will need to restore this company before it can be edited.</div>
-                        *indicates required field.
+                        * indicates a required field.
                     </small>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
-                    <v-btn color="success darken-1" flat @click="restore(currentCompany)" v-if="isDeleted(currentCompany)">Restore</v-btn>
-                    <v-btn color="blue darken-1" flat @click="update" v-else>Save</v-btn>
+                    <v-btn :disabled="restoringCompany" color="success darken-1" flat @click="restore(currentCompany)" v-if="isDeleted(currentCompany)">Restore</v-btn>
+                    <v-btn :disabled="savingCompany" color="blue darken-1" flat @click="save" v-else>Save</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn color="error darken-1" flat @click="softDelete(currentCompany)" v-if="!isDeleted(currentCompany) && updating">Delete</v-btn>
+                    <v-btn :disabled="deletingCompany" color="error darken-1" flat @click="softDelete(currentCompany)" v-if="!isDeleted(currentCompany) && updating">Delete</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -307,10 +275,10 @@
                 var self     = this;
                 var logoPath = '';
                 if ( _.has(self, 'currentCompany.logo') && !_.isEmpty(self.currentCompany.logo) ) {
-                    logoPath = '/storage/logos/' + self.currentCompany.logo + '?' + Math.random();
-                    // logoPath = '/storage/logos/square_' + self.company.logo + '?' + Math.random();
+                    return logoPath = '/storage/logos/' + self.currentCompany.logo + '?' + Math.random();
+                    // return logoPath = '/storage/logos/square_' + self.company.logo + '?' + Math.random();
                 }
-                return logoPath;
+                return '';
             },
             reloadTrigger()
             {
@@ -337,7 +305,7 @@
                 deletingCompany  : false,
                 errorMessages    : '',
                 headers          : [
-                    { text : '', sortable : false, class : 'blue lighten-5', width : '10%', sortable : false, },
+                    { text : '', width : '10%', class : 'blue lighten-5', sortable : false, },
                     { text : 'LOGO', width : '10%', class : 'body-2 blue lighten-5', sortable : false, },
                     { text : 'COMPANY NAME', width : '30%', class : 'body-2 blue lighten-5', sortable : false, },
                     { text : 'EMAIL', width : '30%', class : 'body-2 blue lighten-5', sortable : false, },
@@ -351,10 +319,19 @@
                 rules            : {
                     required : value => !!value || 'Required.',
                     email    : value => {
-                        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                        return pattern.test(value) || 'Invalid e-mail.'
+                        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                        return pattern.test(value) || 'Invalid or incomplete e-mail.';
+                    },
+                    url      : value => {
+                        const pattern = /^(?:(?:(?:https?):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i;
+                        return (pattern.test(value) || _.isEmpty(value)) || 'Invalid or incomplete website, E.g. https://my.website.com';
+                    },
+                    http     : value => {
+                        const pattern = /^(http|https):\/\/(.*)/i;
+                        return (pattern.test(value) || _.isEmpty(value)) || 'It should begin with http(s)://';
                     }
                 },
+                savingCompany    : false,
                 showEditor       : false
             }
         },
@@ -441,6 +418,52 @@
                 });
 
             },
+            save()
+            {
+                var self = this;
+
+                // Stop multiple submissions.
+                if ( self.savingCompany ) return;
+
+                // Check all OK.
+                if ( !this.$refs.form.validate() ) {
+                    self.alert('Please check the company details and correct an issues.', 'warning')
+                    return;
+                }
+
+                // Setup data.
+                var url  = '/company/create';
+                var data = {
+                    email   : self.getStringValue('currentCompany.email'),
+                    name    : self.getStringValue('currentCompany.name'),
+                    logo    : self.getStringValue('currentCompany.logo'),
+                    website : self.getStringValue('currentCompany.website')
+                }
+
+                // Override if editing.
+                if ( self.updating ) {
+                    url = '/company/update';
+                    _.merge(data, {
+                        id : self.getNumericValue('currentCompany.id')
+                    })
+                }
+
+                window.log("Data:", data);
+
+                self.fetch({
+                    url     : url,
+                    data    : data,
+                    success : function({ data }){
+                        if ( _.has(data, 'status') && data.status == 'success' ) {
+                            self.loadCompanies();
+                            self.setValue(self, 'showEditor', false);
+                        }
+                    },
+                    flag    : 'savingCompany'
+                });
+
+
+            },
             softDelete(company)
             {
                 var self    = this;
@@ -460,10 +483,6 @@
                     },
                     flag    : 'deletingCompany'
                 });
-
-            },
-            update()
-            {
 
             },
             validate()

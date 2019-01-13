@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
+use App\Http\Resources\CompanyTransformer;
+use App\Http\Requests\UpdateCompanyRequest;
 use App\Http\Requests\DeleteCompanyRequest;
 use App\Http\Requests\RestoreCompanyRequest;
-use App\Http\Resources\CompanyTransformer;
+
 use App\Http\Requests\CompanySearchRequest;
 
 
@@ -51,6 +55,54 @@ class CompanyController extends Controller
         } else {
             return $this->sendAjaxError(['message' => 'We could not delete that company as we could not locate it in the database']);
         }
+    }
+
+
+    /**
+     * @param $sourceFile
+     * @param $newLogo
+     *
+     * @return bool
+     */
+    private function resizeLogos($sourceFileFullPath, $squareLogoFullPath, $newLogoFullPath, $squareOnly = true)
+    {
+
+        // Create blank canvas
+        $img = Image::make($sourceFileFullPath);
+        $bgColour = $img->pickColor(5, 5);
+
+        // Determine layout portrait or landscape/square?
+        if ( $img->width() < $img->height() ) {
+            $heightPadded = round($img->height() * 1.3);
+            $canvas = Image::canvas($heightPadded, $heightPadded, $bgColour);
+            $canvas->insert($img, 'center');
+        } else {
+            $widthPadded = round($img->width() * 1.3);
+            $canvas = Image::canvas($widthPadded, $widthPadded, $bgColour);
+            $canvas->insert($img, 'center');
+        }
+
+        // Set canvas to 500px wide.
+        $canvas->resize(500, null, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+
+        // Save square logo.
+        $canvas->save($squareLogoFullPath);
+
+        // Resize original logo.
+        if ( !$squareOnly ) {
+            $img->resize(500, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+
+
+            // Save original logo.
+            $img->save($newLogoFullPath);
+        }
+
+        return true;
+
     }
 
 
@@ -128,19 +180,6 @@ class CompanyController extends Controller
 
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Company $company
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Company $company)
-    {
-        //
-    }
-
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
@@ -156,19 +195,124 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Company             $company
+     * @param UpdateCompanyRequest $request
+     * @param  \App\Company        $company
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
-    public function update(Request $request, Company $company)
+    public function update(UpdateCompanyRequest $request, Company $company)
     {
-        //
+        // Get the Company
+        $company = Company::find($request->get('id', 0));
+
+        // Update Company
+        if ( is_a($company, Company::class) ) {
+
+            $company->fill($request->only([
+                'email',
+                'logo',
+                'name',
+                'website'
+            ]));
+
+            // Check if nothing changed.
+            if ( !$company->isDirty() ) {
+                return $this->sendAjaxMessage(
+                    ['message' => $company->name . ' was updated successfully.'],
+                    ['status' => 'success']
+                );
+            }
+
+            // Check for new logo
+            $newLogo = $request->get('logoX', null);
+            if ( !is_null($newLogo) && strlen($newLogo) ) {
+                $fileName = $this->updateLogo($request, $company);
+
+                // Check if anything failed.
+                if ( $fileName === false ) {
+                    return $this->sendAjaxError([], [
+                        'message' => 'We could not find the newly uploaded logo, please upload it again and try again or contact the admin to help.'
+                    ]);
+                }
+
+                // All Ok.
+                $company->logo = $fileName;
+            }
+
+            // Save it all.
+            if ( $company->save() ) {
+                return $this->sendAjaxMessage(
+                    ['message' => $company->name . ' was updated successfully.'],
+                    [
+                        'status'  => 'success',
+                        'company' => new CompanyTransformer($company),
+                    ]
+                );
+            }
+        }
+
+        // Something failed.
+        return $this->sendAjaxError([], [
+            'message' => 'We could not update this company, please try again'
+        ]);
     }
 
-    public function uploadLogo(Request $request)
+
+    /**
+     *
+     * Massage and move company logo.
+     *
+     * @param $request
+     * @param $company
+     *
+     * @return bool|string
+     */
+    private function updateLogo($request, $company)
     {
-        dd('Uploading ...');
+        // Status
+        $allOK = true;
+
+        // Setup paths.
+        $uploadPath = storage_path('app/public');
+        $logosPath = storage_path('app/public') . '/logos/';
+        $newLogoFile = $company->id . '_logo.png';
+        $squareLogoFile = 'square_' . $company->id . '_logo.png';
+        $uploadedLogoFullPath = $uploadPath . $request->get('new_logo', null);
+        $squareLogoFullPath = $logosPath . $squareLogoFile;
+        $newLogoFullPath = $logosPath . $newLogoFile;
+
+        // Check file exists.
+
+        if ( File::exists($uploadedLogoFullPath) ) {
+
+            // Clear out old logo (different extensions);
+            if ( isset($company->logo) && strlen($company->logo) && File::exists($logosPath . $company->logo) ) {
+                try {
+                    File::delete($logosPath . $company->logo);
+                    if ( File::exists($squareLogoFullPath) ) {
+                        File::delete($squareLogoFullPath);
+                    }
+                } catch ( \Exception $e ) {
+                }
+            }
+
+            // Generate Resized logos (normal / square)
+            $this->resizeLogos($uploadedLogoFullPath, $squareLogoFullPath, $newLogoFullPath, false);
+
+            // Move in new logo.
+            if ( File::exists($newLogoFullPath) ) {
+                $company->logo = $newLogoFile;
+                File::delete($uploadedLogoFullPath);
+            } else {
+                $allOK = false;
+            }
+
+        }
+
+        // Return Status
+        return $allOK ? $newLogoFile : false;
+
     }
 
 }

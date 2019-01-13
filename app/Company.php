@@ -9,6 +9,13 @@ class Company extends Model
 {
     use softDeletes;
 
+    /**
+     * Disable Mass Assignment protection.
+     *
+     * @var array
+     */
+    protected $guarded = [];
+
     // ---------------------------  Relationships ----------------------------- //
 
     public function employees()
