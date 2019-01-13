@@ -64,12 +64,13 @@
         <v-snackbar
                 v-model="snackAlert"
                 :top="true"
-                :multi-line="true"
+                auto-height
                 :timeout="snackTimeout"
+                :color="snackStatus"
         >
             @{{ snackMessage }}
             <v-btn
-                    color="info"
+                    color="white"
                     flat
                     @click="snackAlert = false"
             >

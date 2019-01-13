@@ -6,27 +6,26 @@
                 <slot name="seeOriginal">Revert to Original</slot>
             </v-btn>
         </div>
-        <v-card raised v-show="fileAdded || hasDefaultImage" style="max-width: 400px">
+        <v-card raised v-show="fileAdded || hasDefaultImage" fluid>
             <v-img :src="previewImage.src" :contain="true" v-if="previewImage.src"></v-img>
             <v-card-actions>
-                <v-flex>
-                    <v-btn flat :disabled="true" v-if="uploaded">
-                        UPLOADED
-                        <v-icon small color="success" dark class="ml-1">done</v-icon>
-                    </v-btn>
-                    <v-btn flat color="primary" @click="uploadFile" v-if="!hasDefaultImage && !uploaded">
+                <v-btn flat :disabled="true" v-if="uploaded">
+                    UPLOADED
+                    <v-icon small color="success" dark class="ml-1">done</v-icon>
+                </v-btn>
+                <v-btn flat color="primary" @click="uploadFile" v-if="!hasDefaultImage && !uploaded">
                         <span v-if="uploading">
                             Uploading ...
                         </span>
-                        <span v-else>
+                    <span v-else>
                             Upload
                             <v-icon small dark class="ml-1">cloud_upload</v-icon>
                         </span>
-                    </v-btn>
-                    <v-btn flat color="secondary" @click="clearUploader" class="float-right" v-if="!uploading">
-                        <slot name="changeFile">Change File</slot>
-                    </v-btn>
-                </v-flex>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn flat color="primary" @click="clearUploader" class="float-right" v-if="!uploading">
+                    <slot name="changeFile">Change Logo</slot>
+                </v-btn>
             </v-card-actions>
             <v-card-title class="pt-0">
                 <v-progress-linear
@@ -50,6 +49,7 @@
 </template>
 
 <script>
+
     export default {
         computed : {
             id()
@@ -351,7 +351,7 @@
             // Reference this.
             var self = this;
 
-            // Clear Cache
+            // Clear
             window.localStorage.clear();
 
             // Ensure Uploader is present.
@@ -389,16 +389,17 @@
                     minNumberOfFiles : self.minFiles,
                     allowedFileTypes : self.allowedTypes
                 }
-            }).use(Uppy.DragDrop, {
-                note   : self.note,
-                target : '#' + self.id,
-                locale : {
-                    strings : {
-                        dropHereOr : 'Drop file here or %{browse}',
-                        browse     : this.browse
-                    }
-                }
             })
+                .use(Uppy.DragDrop, {
+                    note   : self.note,
+                    target : '#' + self.id,
+                    locale : {
+                        strings : {
+                            dropHereOr : 'Drop file here or %{browse}',
+                            browse     : this.browse
+                        }
+                    }
+                })
                 .use(Uppy.Tus, {
                     autoRetry   : true,
                     endpoint    : '/tus/',
@@ -478,7 +479,7 @@
                 var self  = this;
                 var image = image || null;
                 if ( _.isNull(image) ) return;
-                if ( _.has(self, 'previewImage.src') && !_.isEmpty(image) && !_.isEqual(image, self.previewImage.src) ) {
+                if ( _.has(self, 'previewImage') && !_.isEmpty(image) && !_.isEqual(image, self.previewImage.src) ) {
                     self.$set(self, 'originalImage', _.clone(image));
                     self.$set(self, 'defaultImage', _.clone(image));
                     self.$set(self.previewImage, 'src', _.clone(image));

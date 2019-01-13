@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use Illuminate\Http\Request;
+use App\Http\Requests\DeleteCompanyRequest;
+use App\Http\Requests\RestoreCompanyRequest;
 use App\Http\Resources\CompanyTransformer;
 use App\Http\Requests\CompanySearchRequest;
 
@@ -21,20 +23,60 @@ class CompanyController extends Controller
     public function __construct(Request $request, Company $company)
     {
         parent::__construct($request);
+
         $this->model = $company;
     }
 
 
     /**
-     * Remove the specified resource from storage. (Not destroy, soft delete)
+     * Remove the specified resource from the db. (Not destroy, soft delete)
      *
-     * @param  \App\Company $company
+     * @param DeleteCompanyRequest $request
+     * @param  \App\Company        $company
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
-    public function delete(Company $company)
+    public function delete(DeleteCompanyRequest $request, Company $company)
     {
-        //
+        $company = $company->find($request->get('id', 0));
+
+        // Make sure we have a company.
+        if ( is_a($company, Company::class) ) {
+            if ( $company->delete() ) {
+                return $this->sendAjaxMessage(['message' => $company->name . ' was deleted successfully']);
+            } else {
+                return $this->sendAjaxError(['message' => 'Oops, we could not delete that company something unkosher occurred']);
+            }
+        } else {
+            return $this->sendAjaxError(['message' => 'We could not delete that company as we could not locate it in the database']);
+        }
+    }
+
+
+    /**
+     * Restore the specified resource from the db.
+     *
+     * @param RestoreCompanyRequest $request
+     * @param  \App\Company         $company
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
+    public function restore(RestoreCompanyRequest $request, Company $company)
+    {
+        $company = $company->withTrashed()->find($request->get('id', 0));
+
+        // Make sure we have a company.
+        if ( is_a($company, Company::class) ) {
+            if ( $company->restore() ) {
+                return $this->sendAjaxMessage(['message' => $company->name . ' was restored successfully']);
+            } else {
+                return $this->sendAjaxError(['message' => 'Oops, we could not restore that company something unkosher occurred']);
+            }
+        } else {
+            return $this->sendAjaxError(['message' => 'We could not restore that company as we could not locate it in the database']);
+        }
     }
 
 
@@ -53,6 +95,11 @@ class CompanyController extends Controller
 
         // Set Per Page
         $this->setPerPage($request->get('per_page', 10));
+
+        // Deleted?
+        if ( $request->get('deleted', 0) ) {
+            $this->setWithDeleted(true);
+        }
 
         // Start query.
         $query = $this->newQuery();
@@ -117,6 +164,11 @@ class CompanyController extends Controller
     public function update(Request $request, Company $company)
     {
         //
+    }
+
+    public function uploadLogo(Request $request)
+    {
+        dd('Uploading ...');
     }
 
 }

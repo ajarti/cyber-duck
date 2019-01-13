@@ -1,0 +1,4 @@
+#app .deleted {
+    opacity: 0.25 !important;
+    filter: alpha(opacity=25);
+}

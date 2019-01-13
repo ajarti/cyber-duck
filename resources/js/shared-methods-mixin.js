@@ -32,13 +32,14 @@ module.exports = {
             }
             EventBus.$emit('snackmessage', messagePacket);
         },
-        clear(field)
+        clear(field, value)
         {
             var self  = this;
             var field = field || null;
+            var value = value || '';
             if ( _.isNull(field) ) return;
             if ( _.has(self, field) ) {
-                self.setValue(self, field, '');
+                self.setValue(self, field, value);
             }
         },
         exists(obj, root)
@@ -135,6 +136,13 @@ module.exports = {
             }
 
             return value;
+        },
+        isDeleted(obj)
+        {
+            var self = this;
+            var obj  = obj || null;
+            if ( _.isNull(obj) || !_.has(obj, 'deleted') ) return false;
+            return (obj.deleted);
         },
         isSelected(item, collectionPath, id)
         {

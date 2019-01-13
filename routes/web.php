@@ -21,6 +21,14 @@ Route::get('/', function () {
 Auth::routes(['register' => false]);
 
 /**
+ * TUS Server Routes
+ */
+Route::any('/tus/{any?}', function () {
+    $response = app('tus-server')->serve();
+    return $response->send();
+})->where('any', '.*');
+
+/**
  * Protected Pages.
  */
 Route::group(['middleware' => 'auth'], function () {
@@ -30,6 +38,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Companies
     Route::post('/companies/search', 'CompanyController@search');
+    Route::post('/company/delete', 'CompanyController@delete');
+    Route::post('/company/restore', 'CompanyController@restore');
+    Route::post('/company/upload/logo', 'CompanyController@uploadLogo'); // May be other types in future.
 
     // Employees
     Route::post('/employees/search', 'EmployeeController@search');

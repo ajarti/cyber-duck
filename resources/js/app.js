@@ -36,7 +36,8 @@ const app = new Vue({
         currentScreenHeight : 0,
         snackAlert          : false,
         snackMessage        : '',
-        snackTimeout : 3000
+        snackStatus         : 'info',
+        snackTimeout        : 3000
     },
     el      : '#app',
     methods : {
@@ -80,6 +81,7 @@ const app = new Vue({
             var data = data || null;
             if ( !_.isNull(data) && _.has(data, 'message') ) {
                 self.$set(self, 'snackMessage', data.message)
+                self.$set(self, 'snackStatus', data.status)
                 self.$set(self, 'snackTimeout', data.timeout)
                 self.$set(self, 'snackAlert', true)
             }
