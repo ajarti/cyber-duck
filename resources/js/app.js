@@ -18,15 +18,13 @@ Vue.use(VueRouter);
  * Views.
  */
 import Companies from './components/companies';
-import Dashboard from './components/dash';
 import Employees from './components/employees';
 
 let router = new VueRouter({
     routes : [
-        { path : '/', component : Dashboard },
         { path : '/companies', component : Companies },
         { path : '/employees', component : Employees },
-        { path : '*', redirect : '/' }
+        { path : '*', redirect : '/companies' }
     ]
 });
 

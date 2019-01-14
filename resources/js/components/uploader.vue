@@ -7,7 +7,9 @@
             </v-btn>
         </div>
         <v-card raised v-show="fileAdded || hasDefaultImage" fluid>
-            <v-img :src="previewImage.src" :contain="true" v-if="previewImage.src"></v-img>
+            <div style="min-height: 385px !important;">
+                <v-img :src="previewImage.src" :contain="true" v-if="previewImage.src"></v-img>
+            </div>
             <v-card-actions>
                 <v-btn flat :disabled="true" v-if="uploaded">
                     UPLOADED
@@ -99,44 +101,47 @@
             }
         },
         props    : {
-            allowedTypes : {
+            allowedTypes  : {
                 type    : Array,
                 default : function(){
                     return [];
                 }
             },
-            browse       : {
+            browse        : {
                 type    : String,
                 default : 'browse'
             },
-            currentImage : {
+            currentImage  : {
                 type    : String,
                 default : ''
             },
-            maxFiles     : {
+            maxFiles      : {
                 type    : Number,
                 default : 1
             },
-            maxHeight    : {
+            maxHeight     : {
                 type    : Number,
                 default : 3000
             },
-            maxFileSize  : {
+            maxFileSize   : {
                 type    : Number,
                 default : 2000000 // 2MB
             },
-            maxWidth     : {
+            maxWidth      : {
                 type    : Number,
                 default : 3000
             },
-            minFiles     : {
+            minFiles      : {
                 type    : Number,
                 default : 1
             },
-            note         : {
+            note          : {
                 type    : String,
                 default : ''
             },
+            resetUploader : {
+                type : Number
+            }
         },
         methods  : {
             clearUploader()
@@ -166,6 +171,7 @@
             emit(emitType, message)
             {
                 var self = this;
+                window.log('Emitting:', emitType, message);
                 self.$emit(emitType, message);
             },
             prettyBytes(num)
@@ -350,6 +356,7 @@
         {
             // Reference this.
             var self = this;
+            window.log('UPLAODER......');
 
             // Clear
             window.localStorage.clear();
@@ -449,6 +456,7 @@
                     self.$set(self, 'fileAdded', true);
                     self.$set(self, 'file', currentFile.data);
                     self.$set(self, 'fileSize', currentFile.size);
+                    self.emit('uploadPending', true);
                 })
                 .on('upload-progress', (file, progress) => {
                     self.updateProgress(progress.bytesUploaded, progress.bytesTotal)
@@ -458,6 +466,7 @@
 
                     if ( !_.isNull(result) && _.has(result, 'successful') && _.isArray(result.successful) && !_.isEmpty(result.successful) ) {
                         self.$set(self, 'uploaded', true);
+                        self.emit('uploadPending', false);
                         self.emit('snackMessage', 'The logo was uploaded successfully.');
                         self.emit('fileName', result.successful[0].name);
                         self.emit('fileType', result.successful[0].type);
@@ -484,6 +493,11 @@
                     self.$set(self, 'defaultImage', _.clone(image));
                     self.$set(self.previewImage, 'src', _.clone(image));
                 }
+            },
+            resetUploader()
+            {
+                var self = this;
+                self.clearUploader();
             }
         }
     }

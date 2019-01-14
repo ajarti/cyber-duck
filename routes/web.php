@@ -33,8 +33,11 @@ Route::any('/tus/{any?}', function () {
  */
 Route::group(['middleware' => 'auth'], function () {
 
-    // Dashboard
+    // Base
     Route::get('/app', 'AppController@index');
+
+    // Images
+    Route::get('/logo/{logo}', 'AppController@logo');
 
     // Companies
     Route::post('/companies/search', 'CompanyController@search');
@@ -46,6 +49,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Employees
     Route::post('/employees/search', 'EmployeeController@search');
+    Route::post('/employee/create', 'EmployeeController@store');
     Route::post('/employee/delete', 'EmployeeController@delete');
     Route::post('/employee/restore', 'EmployeeController@restore');
     Route::post('/employee/update', 'EmployeeController@update');

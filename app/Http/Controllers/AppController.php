@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 class AppController extends Controller
 {
@@ -26,4 +28,25 @@ class AppController extends Controller
     {
         return view('app');
     }
+
+
+    /**
+     * Proxy logos and inject placeholder if missing.
+     *
+     * @param null $logo
+     *
+     * @return mixed
+     */
+    public function logo($logo = null)
+    {
+        $logosPath = storage_path('app/public') . '/logos/';
+        if ( !is_null($logo) && strlen($logo) && File::exists($logosPath . $logo) ) {
+            $img = Image::make($logosPath . $logo);
+            return $img->response();
+        } else {
+            $img = Image::make($logosPath . 'logo-placeholder.png');
+            return $img->response();
+        }
+    }
+
 }

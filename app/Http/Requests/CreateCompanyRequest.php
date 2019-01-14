@@ -6,7 +6,7 @@ use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 
-class RestoreEmployeeRequest extends FormRequest
+class CreateCompanyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,11 @@ class RestoreEmployeeRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|integer|exists:employees,id'
+            'name'     => 'required|max:75|unique:companies,name',
+            'email'    => 'max:64|email|unique:companies,email',
+            'logo'     => 'max:250',
+            'new_logo' => 'max:250',
+            'website'  => 'nullable|max:50|url'
         ];
     }
 }

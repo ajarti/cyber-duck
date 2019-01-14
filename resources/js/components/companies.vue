@@ -3,6 +3,9 @@
         <v-progress-linear :indeterminate="isLoading" class="ma-0"></v-progress-linear>
         <v-container>
             <v-layout wrap>
+                <v-flex class="xs12 font-weight-light display-1 py-4">
+                        COMPANIES
+                </v-flex>
                 <v-flex xs6>
                     <v-text-field
                             prepend-icon="search"
@@ -29,7 +32,7 @@
                 </v-flex>
             </v-layout>
 
-            <v-layout wrap>
+            <v-layout wrap mt-2>
                 <v-flex xs12>
                     <!--:total-items="paginator.totalItems" is needed for server-side pagination-->
                     <v-data-table
@@ -45,21 +48,21 @@
                         <template slot="items" slot-scope="props">
                             <v-hover>
                                 <tr :active="props.selected" slot-scope="{ hover }">
-                                    <td class="pa-4">
-                                        <v-checkbox
-                                                :disabled="isDeleted(props.item)"
-                                                hide-details
-                                                primary
-                                                v-model="props.selected"
-                                        ></v-checkbox>
-                                    </td>
+                                    <!--<td class="pa-4">-->
+                                    <!--<v-checkbox-->
+                                    <!--:disabled="isDeleted(props.item)"-->
+                                    <!--hide-details-->
+                                    <!--primary-->
+                                    <!--v-model="props.selected"-->
+                                    <!--&gt;</v-checkbox>-->
+                                    <!--</td>-->
                                     <td :class="{deleted : isDeleted(props.item)}">
                                         <v-avatar
                                                 :size="50"
                                                 color="grey lighten-4"
                                                 tile
                                         >
-                                            <img :src="'/storage/logos/'+props.item.logo">
+                                            <img :src="'/logo/square_'+props.item.logo+'?nc='+Math.random()">
                                         </v-avatar>
                                     </td>
                                     <td class="text-xs-left" :class="{deleted : isDeleted(props.item)}">
@@ -70,7 +73,17 @@
                                     </td>
                                     <td class="text-xs-left" :class="{deleted : isDeleted(props.item)}">
                                         <span v-html="highlight(props.item.email)"></span>
-
+                                    </td>
+                                    <td class="text-xs-center" :class="{deleted : isDeleted(props.item)}">
+                                        <v-tooltip top>
+                                            <v-btn icon
+                                                   :to="'/employees?q='+props.item.name+'&d='+(props.item.deleted ? 1 : 0)"
+                                                   slot="activator"
+                                            >
+                                                <v-icon color="primary">contact_mail</v-icon>
+                                            </v-btn>
+                                            <span>Show Employees</span>
+                                        </v-tooltip>
                                     </td>
                                     <td>
                                         <v-speed-dial
@@ -154,7 +167,7 @@
                         Company
                     </span>
                         <v-spacer></v-spacer>
-                        <v-btn icon dark flat @click="showEditor = false">
+                        <v-btn icon dark flat @click="closeEditor">
                             <v-icon>close</v-icon>
                         </v-btn>
                     </v-card-title>
@@ -185,7 +198,7 @@
                                                 >
                                                 </v-text-field>
                                             </v-flex>
-                                            <v-flex xs12>
+                                            <v-flex xs12 mt-3>
                                                 <v-text-field
                                                         counter="64"
                                                         :disabled="isDeleted(currentObj)"
@@ -198,7 +211,7 @@
                                                 >
                                                 </v-text-field>
                                             </v-flex>
-                                            <v-flex xs12>
+                                            <v-flex xs12 mt-3>
                                                 <v-text-field
                                                         counter="50"
                                                         :disabled="isDeleted(currentObj)"
@@ -223,9 +236,11 @@
                                                 :allowedTypes="['image/jpeg', 'image/png']"
                                                 browse="select an image file"
                                                 note="Please upload the company's logo in either PNG or JPG format, minimum 400 x 400 pixels."
+                                                :resetUploader='resetTimeStamp'
                                                 @snackMessage="alert($event,'success')"
                                                 @oops="alert($event,'warning',5000)"
-                                                @fileName="currentObj.logo = $event"
+                                                @uploadPending="toggleUploadPending($event)"
+                                                @fileName="currentObj.new_logo = $event"
                                         >
                                             <span slot="changeFile">Change Logo</span>
                                             <span slot="rememberToSave">
@@ -244,9 +259,52 @@
                     <v-divider></v-divider>
                     <v-card-actions>
                         <v-btn :disabled="restoring" color="success darken-1" flat @click="restore(currentObj)" v-if="isDeleted(currentObj)">Restore</v-btn>
-                        <v-btn :disabled="saving" color="blue darken-1" flat @click="save" v-else>Save</v-btn>
+                        <div v-else>
+                            <span v-if="uploadPending">
+                                <span class="gray--text my-2">Please upload logo to continue</span>
+                                 <v-btn small color="blue darken-1" flat @click="uploadPending = false" v-if="uploadPending">Ignore logo change</v-btn>
+                            </span>
+                            <v-btn :disabled="saving" color="blue darken-1" flat @click="save" v-else>
+                               Save
+                            </v-btn>
+
+                        </div>
+
                         <v-spacer></v-spacer>
                         <v-btn :disabled="deleting" color="error darken-1" flat @click="softDelete(currentObj)" v-if="!isDeleted(currentObj) && updating">Delete</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog
+                    v-model="closeWithPendingUpload"
+                    max-width="290"
+            >
+                <v-card>
+                    <v-card-title class="headline">Are you sure?</v-card-title>
+                    <v-card-text class="text-sm-center">
+                        <div class="text--blue">You have selected a new logo, but you have not uploaded it.</div>
+                        <div class="subheading font-weight-bold mt-3">Continue to close the editor?</div>
+
+                    </v-card-text>
+
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+
+                        <v-btn
+                                color="green darken-1"
+                                flat="flat"
+                                @click="closeWithPendingUpload = false"
+                        >
+                            Oops, No!
+                        </v-btn>
+
+                        <v-btn
+                                color="green darken-1"
+                                flat="flat"
+                                @click="closeEditor('yes')"
+                        >
+                            Yes
+                        </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -275,8 +333,7 @@
                 var self     = this;
                 var logoPath = '';
                 if ( _.has(self, 'currentObj.logo') && !_.isEmpty(self.currentObj.logo) ) {
-                    return logoPath = '/storage/logos/' + self.currentObj.logo + '?' + Math.random();
-                    // return logoPath = '/storage/logos/square_' + self.company.logo + '?' + Math.random();
+                    return logoPath = '/logo/square_' + self.currentObj.logo + '?' + Math.random();
                 }
                 return '';
             }
@@ -284,30 +341,53 @@
         data()
         {
             return {
-                blankObj     : {
-                    name    : '',
-                    email   : '',
-                    logo    : '',
-                    website : ''
+                blankObj               : {
+                    name     : '',
+                    email    : '',
+                    logo     : '',
+                    new_logo : '',
+                    website  : ''
                 },
-                currentObjType   : 'company',
-                headers          : [
-                    { text : '', width : '10%', class : 'blue lighten-5', sortable : false, },
+                closeWithPendingUpload : false,
+                currentObjType         : 'company',
+                headers                : [
+                    // { text : '', width : '10%', class : 'blue lighten-5', sortable : false, },
                     { text : 'LOGO', width : '10%', class : 'body-2 blue lighten-5', sortable : false, },
                     { text : 'COMPANY NAME', width : '30%', class : 'body-2 blue lighten-5', sortable : false, },
                     { text : 'EMAIL', width : '30%', class : 'body-2 blue lighten-5', sortable : false, },
+                    { text : 'EMPLOYEES', width : '20%', class : 'body-2 blue lighten-5', sortable : false, },
                     { text : '', width : '10%', class : 'body-2 blue lighten-5', sortable : false, },
                 ],
-                masterCollection : 'companies',
+                masterCollection       : 'companies',
+                resetTimeStamp         : 0,
+                uploadPending          : false,
             }
         },
         methods  : {
+            closeEditor(force)
+            {
+                var self  = this;
+                var force = force || 'no';
+
+                if ( self.uploadPending && (force != 'yes') ) {
+                    self.setValue(self, 'closeWithPendingUpload', true);
+                } else {
+                    self.setValue(self, 'uploadPending', false);
+                    self.setValue(self, 'closeWithPendingUpload', false);
+                    self.setValue(self, 'showEditor', false);
+                }
+            },
+            toggleUploadPending(status)
+            {
+                var self = this;
+                self.setValue(self, 'uploadPending', status);
+            },
             save()
             {
                 var self = this;
 
                 // Stop multiple submissions.
-                if ( self.saving ) return;
+                if ( self.saving || self.uploadPending ) return;
 
                 // Check all OK.
                 if ( !this.$refs.form.validate() ) {
@@ -318,10 +398,11 @@
                 // Setup data.
                 var url  = '/company/create';
                 var data = {
-                    email   : self.getStringValue('currentObj.email'),
-                    name    : self.getStringValue('currentObj.name'),
-                    logo    : self.getStringValue('currentObj.logo'),
-                    website : self.getStringValue('currentObj.website')
+                    email    : self.getStringValue('currentObj.email'),
+                    name     : self.getStringValue('currentObj.name'),
+                    logo     : self.getStringValue('currentObj.logo'),
+                    new_logo : self.getStringValue('currentObj.new_logo'),
+                    website  : self.getStringValue('currentObj.website')
                 }
 
                 // Override if editing.
@@ -332,29 +413,49 @@
                     })
                 }
 
-                window.log("Data:", data);
-
                 self.fetch({
                     url     : url,
                     data    : data,
                     success : function({ data }){
                         if ( _.has(data, 'status') && data.status == 'success' ) {
-                            self.loadCompanies();
-                            self.setValue(self, 'showEditor', false);
+                            if ( self.creating ) {
+                                self.setValue(self, 'query', '');
+                                self.setValue(self, 'deleted', 0);
+                            }
+                            self.debouncedLoader(self.collectionLoader);
+                            self.closeEditor();
                         }
                     },
                     flag    : 'saving'
                 });
-
-
             }
         },
         mounted()
         {
             var self = this;
+
+            // Check for filters
+            if ( _.has(self.$route, 'query.q') ) {
+                self.setValue(self, 'query', self.$route.query.q);
+            }
+            if ( _.has(self.$route, 'query.d') ) {
+                self.setValue(self, 'deleted', self.$route.query.d);
+            }
+
             self.setValue(self, 'collectionLoader', 'loadCompanies');
             self.debouncedLoader(self.collectionLoader);
             window.log('Companies mounted.')
+        },
+        watch    : {
+            showEditor(val)
+            {
+                var self = this;
+                if ( !val ) {
+                    setTimeout(function(){
+                        self.setValue(self, 'resetTimeStamp', (new Date()).getMilliseconds());
+                    }, 1000);
+                }
+            }
         }
     }
 </script>

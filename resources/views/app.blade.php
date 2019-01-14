@@ -32,10 +32,6 @@
                                                 grow
                                         >
                                             <v-tabs-slider color="yellow"></v-tabs-slider>
-                                            <v-tab to="/">
-                                                <span :class="{caption : lt(680)}">Dashboard</span>
-                                                <v-icon right dark class="mr-1 ml-0">dashboard</v-icon>
-                                            </v-tab>
                                             <v-tab to="/companies">
                                                 <span :class="{caption : lt(680)}">Companies</span>
                                                 <v-icon right dark class="mr-1 ml-0">business</v-icon>

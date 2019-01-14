@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 
 class UpdateCompanyRequest extends FormRequest
@@ -27,26 +28,12 @@ class UpdateCompanyRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'      => 'required|integer|exists:companies,id',
-            'name'    => 'required|max:75',
-            'email'   => 'max:64|email',
-            'logo'    => 'max:250',
-            'website' => 'max:50|url'
-        ];
-    }
-
-
-    /**
-     * Get the validation messages that apply to the request.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return [
-            'id.required' => 'The company id is required',
-            'id.integer'  => 'The company id must be a number',
-            'id.exists'   => 'The company id does not exist',
+            'id'       => 'required|integer|exists:companies,id',
+            'name'     => 'required|max:75',
+            'email'    => ['max:64|email', Rule::unique('companies')->ignore($this->id)],
+            'logo'     => 'max:250',
+            'new_logo' => 'max:250',
+            'website'  => 'nullable|max:50|url'
         ];
     }
 }

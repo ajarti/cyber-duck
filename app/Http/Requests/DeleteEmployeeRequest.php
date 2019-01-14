@@ -30,19 +30,4 @@ class DeleteEmployeeRequest extends FormRequest
             'id' => 'required|integer|exists:employees,id'
         ];
     }
-
-
-    /**
-     * Get the validation messages that apply to the request.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return [
-            'id.required' => 'The employee id is required',
-            'id.integer'  => 'The employee id must be a number',
-            'id.exists'   => 'The employee id does not exist',
-        ];
-    }
 }

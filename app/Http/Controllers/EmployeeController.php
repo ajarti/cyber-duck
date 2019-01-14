@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\Http\Requests\CreateEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
 use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeTransformer;
 use App\Http\Requests\EmployeeSearchRequest;
@@ -63,20 +65,28 @@ class EmployeeController extends Controller
      */
     public function restore(RestoreEmployeeRequest $request, Employee $employee)
     {
-        $employee = $employee->withTrashed()->find($request->get('id', 0));
+        $employee = $employee->with(['company'])->withTrashed()->find($request->get('id', 0));
 
         // Make sure we have a employee.
         if ( is_a($employee, Employee::class) ) {
+
+            // Make sure company is not deleted.
+            if ( $employee->company->trashed() ) {
+                return $this->sendAjaxError(['message' => $employee->company->name . ' is current deleted, please restore it first']);
+            }
+
+            // Action restore.
             if ( $employee->restore() ) {
                 return $this->sendAjaxMessage(['message' => $employee->first_name . ' was restored successfully']);
             } else {
                 return $this->sendAjaxError(['message' => 'Oops, we could not restore that employee something unkosher occurred']);
             }
+
         } else {
             return $this->sendAjaxError(['message' => 'We could not restore that employee as we could not locate them in the database']);
         }
     }
-    
+
 
     /**
      * Search the resource.
@@ -153,22 +163,91 @@ class EmployeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateEmployeeRequest $request)
     {
-        //
+        // Create an employee.
+        $employee = $this->newModel();
+
+
+        // Update Employee
+        if ( is_a($employee, Employee::class) ) {
+
+            $employee->fill($request->only([
+                'company_id',
+                'email',
+                'first_name',
+                'last_name',
+                'phone'
+            ]));
+
+            // Save it all.
+            if ( $employee->save() ) {
+                return $this->sendAjaxMessage(
+                    ['message' => $employee->first_name . ' was created successfully'],
+                    [
+                        'status'   => 'success',
+                        'employee' => new EmployeeTransformer($employee),
+                    ]
+                );
+            }
+        }
+
+        // Something failed.
+        return $this->sendAjaxError([], [
+            'message' => 'We could not create this employee, please try again'
+        ]);
+
     }
 
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Company             $company
+     * @param UpdateEmployeeRequest $request
+     * @param Employee              $employee
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
-    public function update(Request $request, Employee $employee)
+    public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-        //
+        // Get the Employee
+        $employee = Employee::find($request->get('id', 0));
+
+        // Update Employee
+        if ( is_a($employee, Employee::class) ) {
+
+            $employee->fill($request->only([
+                'email',
+                'first_name',
+                'last_name',
+                'phone',
+                'company_id'
+            ]));
+
+            // Check if nothing changed.
+            if ( !$employee->isDirty() ) {
+                return $this->sendAjaxMessage(
+                    ['message' => $employee->first_name . ' was updated successfully'],
+                    ['status' => 'success']
+                );
+            }
+
+            // Save it all.
+            if ( $employee->save() ) {
+                return $this->sendAjaxMessage(
+                    ['message' => $employee->first_name . ' was updated successfully'],
+                    [
+                        'status'   => 'success',
+                        'employee' => new EmployeeTransformer($employee),
+                    ]
+                );
+            }
+        }
+
+        // Something failed.
+        return $this->sendAjaxError([], [
+            'message' => 'We could not update this employee, please try again'
+        ]);
     }
 }

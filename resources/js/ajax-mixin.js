@@ -1,5 +1,17 @@
 module.exports = {
     computed : {
+        autocompleteCompanies()
+        {
+            var self = this;
+            if ( !_.has(self, 'companies') || !_.isArray(self.companies) ) return [];
+            return self.companies.map(company => {
+                const description = '';
+                if ( _.has(company, 'name') && (company.name.length > self.companyNameLengthLimit) ) {
+                    company.name = company.name.slice(0, self.companyNameLengthLimit) + '...';
+                }
+                return company;
+            })
+        },
         isLoading()
         {
             var self = this;
@@ -17,26 +29,29 @@ module.exports = {
     data()
     {
         return {
-            collectionLoader : '',
-            companies        : [],
-            currentObj       : {},
-            deleting         : false,
-            employees        : [],
-            noRecords        : false,
-            loading          : false,
-            originalObj      : {},
-            paginator        : {
+            collectionLoader          : '',
+            companies                 : [],
+            companyNameLengthLimit    : 60,
+            companyAutocompleteSearch : '',
+            currentObj                : {},
+            deleted                   : 0,
+            deleting                  : false,
+            employees                 : [],
+            noRecords                 : false,
+            loading                   : false,
+            originalObj               : {},
+            paginator                 : {
                 descending  : true,
                 page        : 1,
                 rowsPerPage : 10,
                 sortBy      : '',
                 totalItems  : 0
             },
-            query            : '',
-            restoring        : false,
-            saving           : false,
-            selected         : [],
-            serverReturned   : false
+            query                     : '',
+            restoring                 : false,
+            saving                    : false,
+            selected                  : [],
+            serverReturned            : false
         }
     },
     methods  : {
@@ -171,6 +186,7 @@ module.exports = {
                         self.setValue(self, 'companies', []);
                         if ( _.has(data, 'companies') && !_.isEmpty(data.companies) ) {
                             _.each(data.companies, function(company){
+                                company.new_logo = '';
                                 self.companies.push(company);
                             });
                             if ( _.has(data, 'pagination') && !_.isEmpty(data.pagination) ) {
@@ -230,6 +246,30 @@ module.exports = {
             });
 
         },
+        searchCompanies()
+        {
+            var self = this;
+            self.fetch({
+                url     : '/companies/search',
+                data    : {
+                    deleted  : 1,
+                    q        : self.companyAutocompleteSearch,
+                    page     : 1,
+                    per_page : self.paginator.rowsPerPage
+                },
+                success : function({ data }){
+                    if ( _.has(data, 'status') && data.status == 'success' ) {
+                        self.setValue(self, 'companies', []);
+                        if ( _.has(data, 'companies') && !_.isEmpty(data.companies) ) {
+                            _.each(data.companies, function(company){
+                                self.companies.push(company);
+                            });
+                        }
+                    }
+                },
+                flag    : 'loading'
+            });
+        },
         softDelete(obj)
         {
             var self = this;
@@ -250,6 +290,11 @@ module.exports = {
         }
     },
     watch    : {
+        companyAutocompleteSearch()
+        {
+            var self = this;
+            self.searchCompanies();
+        },
         reloadTrigger()
         {
             var self = this;

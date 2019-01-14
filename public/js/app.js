@@ -2027,6 +2027,64 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // Uploader Component
 
 Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["default"]); // Mixins
@@ -2042,7 +2100,7 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
       var logoPath = '';
 
       if (_.has(self, 'currentObj.logo') && !_.isEmpty(self.currentObj.logo)) {
-        return logoPath = '/storage/logos/' + self.currentObj.logo + '?' + Math.random(); // return logoPath = '/storage/logos/square_' + self.company.logo + '?' + Math.random();
+        return logoPath = '/logo/square_' + self.currentObj.logo + '?' + Math.random();
       }
 
       return '';
@@ -2054,15 +2112,13 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
         name: '',
         email: '',
         logo: '',
+        new_logo: '',
         website: ''
       },
+      closeWithPendingUpload: false,
       currentObjType: 'company',
-      headers: [{
-        text: '',
-        width: '10%',
-        class: 'blue lighten-5',
-        sortable: false
-      }, {
+      headers: [// { text : '', width : '10%', class : 'blue lighten-5', sortable : false, },
+      {
         text: 'LOGO',
         width: '10%',
         class: 'body-2 blue lighten-5',
@@ -2078,19 +2134,42 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
         class: 'body-2 blue lighten-5',
         sortable: false
       }, {
+        text: 'EMPLOYEES',
+        width: '20%',
+        class: 'body-2 blue lighten-5',
+        sortable: false
+      }, {
         text: '',
         width: '10%',
         class: 'body-2 blue lighten-5',
         sortable: false
       }],
-      masterCollection: 'companies'
+      masterCollection: 'companies',
+      resetTimeStamp: 0,
+      uploadPending: false
     };
   },
   methods: {
+    closeEditor: function closeEditor(force) {
+      var self = this;
+      var force = force || 'no';
+
+      if (self.uploadPending && force != 'yes') {
+        self.setValue(self, 'closeWithPendingUpload', true);
+      } else {
+        self.setValue(self, 'uploadPending', false);
+        self.setValue(self, 'closeWithPendingUpload', false);
+        self.setValue(self, 'showEditor', false);
+      }
+    },
+    toggleUploadPending: function toggleUploadPending(status) {
+      var self = this;
+      self.setValue(self, 'uploadPending', status);
+    },
     save: function save() {
       var self = this; // Stop multiple submissions.
 
-      if (self.saving) return; // Check all OK.
+      if (self.saving || self.uploadPending) return; // Check all OK.
 
       if (!this.$refs.form.validate()) {
         self.alert('Please check the company details and correct an issues.', 'warning');
@@ -2103,6 +2182,7 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
         email: self.getStringValue('currentObj.email'),
         name: self.getStringValue('currentObj.name'),
         logo: self.getStringValue('currentObj.logo'),
+        new_logo: self.getStringValue('currentObj.new_logo'),
         website: self.getStringValue('currentObj.website') // Override if editing.
 
       };
@@ -2115,7 +2195,6 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
         });
       }
 
-      window.log("Data:", data);
       self.fetch({
         url: url,
         data: data,
@@ -2123,8 +2202,13 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
           var data = _ref.data;
 
           if (_.has(data, 'status') && data.status == 'success') {
-            self.loadCompanies();
-            self.setValue(self, 'showEditor', false);
+            if (self.creating) {
+              self.setValue(self, 'query', '');
+              self.setValue(self, 'deleted', 0);
+            }
+
+            self.debouncedLoader(self.collectionLoader);
+            self.closeEditor();
           }
         },
         flag: 'saving'
@@ -2132,32 +2216,30 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
     }
   },
   mounted: function mounted() {
-    var self = this;
+    var self = this; // Check for filters
+
+    if (_.has(self.$route, 'query.q')) {
+      self.setValue(self, 'query', self.$route.query.q);
+    }
+
+    if (_.has(self.$route, 'query.d')) {
+      self.setValue(self, 'deleted', self.$route.query.d);
+    }
+
     self.setValue(self, 'collectionLoader', 'loadCompanies');
     self.debouncedLoader(self.collectionLoader);
     window.log('Companies mounted.');
-  }
-});
+  },
+  watch: {
+    showEditor: function showEditor(val) {
+      var self = this;
 
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/dash.vue?vue&type=script&lang=js&":
-/*!***************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/dash.vue?vue&type=script&lang=js& ***!
-  \***************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-/* harmony default export */ __webpack_exports__["default"] = ({
-  mounted: function mounted() {
-    console.log('Dash mounted.');
+      if (!val) {
+        setTimeout(function () {
+          self.setValue(self, 'resetTimeStamp', new Date().getMilliseconds());
+        }, 1000);
+      }
+    }
   }
 });
 
@@ -2437,25 +2519,28 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // Mixins
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mixins: [_ajax_mixin__WEBPACK_IMPORTED_MODULE_0___default.a, _form_mixin__WEBPACK_IMPORTED_MODULE_1___default.a, _shared_methods_mixin__WEBPACK_IMPORTED_MODULE_2___default.a],
-  computed: {// items()
-    // {
-    //     var self = this;
-    //     return self.companies.map(company => {
-    //         if (_.has(company,'name')){
-    //             const name = company.name.length > this.companyNameLengthLimit
-    //                 ? company.name.slice(0, this.companyNameLengthLimit) + '...'
-    //                 : company.name
-    //         }
-    //         return Object.assign({}, company, { company });
-    //     })
-    // }
-  },
   data: function data() {
     return {
       blankObj: {
@@ -2463,27 +2548,18 @@ __webpack_require__.r(__webpack_exports__);
         last_name: '',
         email: '',
         phone: '',
-        company: {
-          id: 0
-        }
+        company: {}
       },
-      companyNameLengthLimit: 60,
-      companySearch: '',
       currentObjType: 'employee',
-      currentEmployee: {},
-      headers: [{
-        text: '',
-        width: '10%',
-        class: 'blue lighten-5',
-        sortable: false
-      }, {
+      headers: [// { text : '', width : '10%', class : 'blue lighten-5', sortable : false },
+      {
         text: 'EMPLOYEE',
-        width: '40%',
+        width: '50%',
         class: 'body-2 blue lighten-5',
         sortable: false
       }, {
         text: 'CONTACT DETAILS',
-        width: '30%',
+        width: '40%',
         class: 'body-2 blue lighten-5',
         sortable: false
       }, {
@@ -2496,12 +2572,76 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    save: function save() {}
+    companyName: function companyName(employee) {
+      var self = this;
+      var employee = employee || null;
+      if (_.isNull(employee) || !_.has(employee, 'company.name')) return '';
+      return employee.company.deleted ? employee.company.name + ' [Deleted] ' : employee.company.name;
+    },
+    save: function save() {
+      var self = this; // Stop multiple submissions.
+
+      if (self.saving) return; // Check all OK.
+
+      if (!this.$refs.form.validate()) {
+        self.alert('Please check the employee details and correct an issues.', 'warning');
+        return;
+      } // Setup data.
+
+
+      var url = '/employee/create';
+      var data = {
+        email: self.getStringValue('currentObj.email'),
+        first_name: self.getStringValue('currentObj.first_name'),
+        last_name: self.getStringValue('currentObj.last_name'),
+        phone: self.getStringValue('currentObj.phone'),
+        company_id: self.getNumericValue('currentObj.company.id') // Override if editing.
+
+      };
+
+      if (self.updating) {
+        url = '/employee/update';
+
+        _.merge(data, {
+          id: self.getNumericValue('currentObj.id')
+        });
+      }
+
+      window.log("Data:", data);
+      self.fetch({
+        url: url,
+        data: data,
+        success: function success(_ref) {
+          var data = _ref.data;
+
+          if (_.has(data, 'status') && data.status == 'success') {
+            if (self.creating) {
+              self.setValue(self, 'query', '');
+              self.setValue(self, 'deleted', 0);
+            }
+
+            self.debouncedLoader(self.collectionLoader);
+            self.setValue(self, 'showEditor', false);
+          }
+        },
+        flag: 'saving'
+      });
+    }
   },
   mounted: function mounted() {
-    var self = this;
+    var self = this; // Check for filters
+
+    if (_.has(self.$route, 'query.q')) {
+      self.setValue(self, 'query', self.$route.query.q);
+    }
+
+    if (_.has(self.$route, 'query.d') && self.$route.query.d == 1) {
+      self.setValue(self, 'deleted', 1);
+    }
+
     self.setValue(self, 'collectionLoader', 'loadEmployees');
     self.debouncedLoader(self.collectionLoader);
+    self.debouncedLoader('loadCompanies');
     console.log('Employees mounted.');
   }
 });
@@ -2517,6 +2657,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
 //
 //
 //
@@ -2649,6 +2791,9 @@ __webpack_require__.r(__webpack_exports__);
     note: {
       type: String,
       default: ''
+    },
+    resetUploader: {
+      type: Number
     }
   },
   methods: {
@@ -2675,6 +2820,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     emit: function emit(emitType, message) {
       var self = this;
+      window.log('Emitting:', emitType, message);
       self.$emit(emitType, message);
     },
     prettyBytes: function prettyBytes(num) {
@@ -2849,7 +2995,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     // Reference this.
-    var self = this; // Clear
+    var self = this;
+    window.log('UPLAODER......'); // Clear
 
     window.localStorage.clear(); // Ensure Uploader is present.
 
@@ -2935,6 +3082,7 @@ __webpack_require__.r(__webpack_exports__);
       self.$set(self, 'fileAdded', true);
       self.$set(self, 'file', currentFile.data);
       self.$set(self, 'fileSize', currentFile.size);
+      self.emit('uploadPending', true);
     }).on('upload-progress', function (file, progress) {
       self.updateProgress(progress.bytesUploaded, progress.bytesTotal);
     }).on('complete', function (result) {
@@ -2942,6 +3090,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (!_.isNull(result) && _.has(result, 'successful') && _.isArray(result.successful) && !_.isEmpty(result.successful)) {
         self.$set(self, 'uploaded', true);
+        self.emit('uploadPending', false);
         self.emit('snackMessage', 'The logo was uploaded successfully.');
         self.emit('fileName', result.successful[0].name);
         self.emit('fileType', result.successful[0].type);
@@ -2966,6 +3115,10 @@ __webpack_require__.r(__webpack_exports__);
         self.$set(self, 'defaultImage', _.clone(image));
         self.$set(self.previewImage, 'src', _.clone(image));
       }
+    },
+    resetUploader: function resetUploader() {
+      var self = this;
+      self.clearUploader();
     }
   }
 });
@@ -3231,6 +3384,12 @@ var render = function() {
             [
               _c(
                 "v-flex",
+                { staticClass: "xs12 font-weight-light display-1 py-4" },
+                [_vm._v("\n                    COMPANIES\n            ")]
+              ),
+              _vm._v(" "),
+              _c(
+                "v-flex",
                 { attrs: { xs6: "" } },
                 [
                   _c("v-text-field", {
@@ -3301,7 +3460,7 @@ var render = function() {
           _vm._v(" "),
           _c(
             "v-layout",
-            { attrs: { wrap: "" } },
+            { attrs: { wrap: "", "mt-2": "" } },
             [
               _c(
                 "v-flex",
@@ -3343,34 +3502,6 @@ var render = function() {
                                         [
                                           _c(
                                             "td",
-                                            { staticClass: "pa-4" },
-                                            [
-                                              _c("v-checkbox", {
-                                                attrs: {
-                                                  disabled: _vm.isDeleted(
-                                                    props.item
-                                                  ),
-                                                  "hide-details": "",
-                                                  primary: ""
-                                                },
-                                                model: {
-                                                  value: props.selected,
-                                                  callback: function($$v) {
-                                                    _vm.$set(
-                                                      props,
-                                                      "selected",
-                                                      $$v
-                                                    )
-                                                  },
-                                                  expression: "props.selected"
-                                                }
-                                              })
-                                            ],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "td",
                                             {
                                               class: {
                                                 deleted: _vm.isDeleted(
@@ -3392,8 +3523,10 @@ var render = function() {
                                                   _c("img", {
                                                     attrs: {
                                                       src:
-                                                        "/storage/logos/" +
-                                                        props.item.logo
+                                                        "/logo/square_" +
+                                                        props.item.logo +
+                                                        "?nc=" +
+                                                        Math.random()
                                                     }
                                                   })
                                                 ]
@@ -3472,6 +3605,61 @@ var render = function() {
                                                 }
                                               })
                                             ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "td",
+                                            {
+                                              staticClass: "text-xs-center",
+                                              class: {
+                                                deleted: _vm.isDeleted(
+                                                  props.item
+                                                )
+                                              }
+                                            },
+                                            [
+                                              _c(
+                                                "v-tooltip",
+                                                { attrs: { top: "" } },
+                                                [
+                                                  _c(
+                                                    "v-btn",
+                                                    {
+                                                      attrs: {
+                                                        slot: "activator",
+                                                        icon: "",
+                                                        to:
+                                                          "/employees?q=" +
+                                                          props.item.name +
+                                                          "&d=" +
+                                                          (props.item.deleted
+                                                            ? 1
+                                                            : 0)
+                                                      },
+                                                      slot: "activator"
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "v-icon",
+                                                        {
+                                                          attrs: {
+                                                            color: "primary"
+                                                          }
+                                                        },
+                                                        [_vm._v("contact_mail")]
+                                                      )
+                                                    ],
+                                                    1
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c("span", [
+                                                    _vm._v("Show Employees")
+                                                  ])
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
                                           ),
                                           _vm._v(" "),
                                           _c(
@@ -3743,11 +3931,7 @@ var render = function() {
                         "v-btn",
                         {
                           attrs: { icon: "", dark: "", flat: "" },
-                          on: {
-                            click: function($event) {
-                              _vm.showEditor = false
-                            }
-                          }
+                          on: { click: _vm.closeEditor }
                         },
                         [_c("v-icon", [_vm._v("close")])],
                         1
@@ -3835,7 +4019,12 @@ var render = function() {
                                               _vm._v(" "),
                                               _c(
                                                 "v-flex",
-                                                { attrs: { xs12: "" } },
+                                                {
+                                                  attrs: {
+                                                    xs12: "",
+                                                    "mt-3": ""
+                                                  }
+                                                },
                                                 [
                                                   _c("v-text-field", {
                                                     attrs: {
@@ -3870,7 +4059,12 @@ var render = function() {
                                               _vm._v(" "),
                                               _c(
                                                 "v-flex",
-                                                { attrs: { xs12: "" } },
+                                                {
+                                                  attrs: {
+                                                    xs12: "",
+                                                    "mt-3": ""
+                                                  }
+                                                },
                                                 [
                                                   _c("v-text-field", {
                                                     attrs: {
@@ -3973,7 +4167,8 @@ var render = function() {
                                             ],
                                             browse: "select an image file",
                                             note:
-                                              "Please upload the company's logo in either PNG or JPG format, minimum 400 x 400 pixels."
+                                              "Please upload the company's logo in either PNG or JPG format, minimum 400 x 400 pixels.",
+                                            resetUploader: _vm.resetTimeStamp
                                           },
                                           on: {
                                             snackMessage: function($event) {
@@ -3982,8 +4177,11 @@ var render = function() {
                                             oops: function($event) {
                                               _vm.alert($event, "warning", 5000)
                                             },
+                                            uploadPending: function($event) {
+                                              _vm.toggleUploadPending($event)
+                                            },
                                             fileName: function($event) {
-                                              _vm.currentObj.logo = $event
+                                              _vm.currentObj.new_logo = $event
                                             }
                                           }
                                         },
@@ -4072,16 +4270,61 @@ var render = function() {
                             [_vm._v("Restore")]
                           )
                         : _c(
-                            "v-btn",
-                            {
-                              attrs: {
-                                disabled: _vm.saving,
-                                color: "blue darken-1",
-                                flat: ""
-                              },
-                              on: { click: _vm.save }
-                            },
-                            [_vm._v("Save")]
+                            "div",
+                            [
+                              _vm.uploadPending
+                                ? _c(
+                                    "span",
+                                    [
+                                      _c(
+                                        "span",
+                                        { staticClass: "gray--text my-2" },
+                                        [
+                                          _vm._v(
+                                            "Please upload logo to continue"
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      _vm.uploadPending
+                                        ? _c(
+                                            "v-btn",
+                                            {
+                                              attrs: {
+                                                small: "",
+                                                color: "blue darken-1",
+                                                flat: ""
+                                              },
+                                              on: {
+                                                click: function($event) {
+                                                  _vm.uploadPending = false
+                                                }
+                                              }
+                                            },
+                                            [_vm._v("Ignore logo change")]
+                                          )
+                                        : _vm._e()
+                                    ],
+                                    1
+                                  )
+                                : _c(
+                                    "v-btn",
+                                    {
+                                      attrs: {
+                                        disabled: _vm.saving,
+                                        color: "blue darken-1",
+                                        flat: ""
+                                      },
+                                      on: { click: _vm.save }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                           Save\n                        "
+                                      )
+                                    ]
+                                  )
+                            ],
+                            1
                           ),
                       _vm._v(" "),
                       _c("v-spacer"),
@@ -4112,6 +4355,88 @@ var render = function() {
               )
             ],
             1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-dialog",
+            {
+              attrs: { "max-width": "290" },
+              model: {
+                value: _vm.closeWithPendingUpload,
+                callback: function($$v) {
+                  _vm.closeWithPendingUpload = $$v
+                },
+                expression: "closeWithPendingUpload"
+              }
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c("v-card-title", { staticClass: "headline" }, [
+                    _vm._v("Are you sure?")
+                  ]),
+                  _vm._v(" "),
+                  _c("v-card-text", { staticClass: "text-sm-center" }, [
+                    _c("div", { staticClass: "text--blue" }, [
+                      _vm._v(
+                        "You have selected a new logo, but you have not uploaded it."
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "subheading font-weight-bold mt-3" },
+                      [_vm._v("Continue to close the editor?")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    [
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "green darken-1", flat: "flat" },
+                          on: {
+                            click: function($event) {
+                              _vm.closeWithPendingUpload = false
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Oops, No!\n                    "
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "green darken-1", flat: "flat" },
+                          on: {
+                            click: function($event) {
+                              _vm.closeEditor("yes")
+                            }
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Yes\n                    "
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
           )
         ],
         1
@@ -4119,30 +4444,6 @@ var render = function() {
     ],
     1
   )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/dash.vue?vue&type=template&id=0915e95d&":
-/*!*******************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/dash.vue?vue&type=template&id=0915e95d& ***!
-  \*******************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", [_vm._v("DASH ..")])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -4181,6 +4482,12 @@ var render = function() {
             "v-layout",
             { attrs: { wrap: "" } },
             [
+              _c(
+                "v-flex",
+                { staticClass: "xs12 font-weight-light display-1 py-4" },
+                [_vm._v("\n                EMPLOYEES\n            ")]
+              ),
+              _vm._v(" "),
               _c(
                 "v-flex",
                 { attrs: { xs6: "" } },
@@ -4252,353 +4559,372 @@ var render = function() {
           ),
           _vm._v(" "),
           _c(
-            "v-data-table",
-            {
-              attrs: {
-                headers: _vm.headers,
-                items: _vm.employees,
-                "item-key": "id",
-                "rows-per-page-items": [5, 10, 25],
-                pagination: _vm.paginator,
-                "total-items": _vm.paginator.totalItems
-              },
-              on: {
-                "update:pagination": [
-                  function($event) {
-                    _vm.paginator = $event
-                  },
-                  _vm.loadEmployees
-                ]
-              },
-              scopedSlots: _vm._u([
-                {
-                  key: "items",
-                  fn: function(props) {
-                    return [
-                      _c("v-hover", {
-                        scopedSlots: _vm._u([
-                          {
-                            key: "default",
-                            fn: function(ref) {
-                              var hover = ref.hover
-                              return _c(
-                                "tr",
-                                { attrs: { active: props.selected } },
-                                [
-                                  _c(
-                                    "td",
-                                    { staticClass: "pa-4" },
-                                    [
-                                      _c("v-checkbox", {
-                                        attrs: {
-                                          disabled: _vm.isDeleted(props.item),
-                                          "hide-details": "",
-                                          primary: ""
-                                        },
-                                        model: {
-                                          value: props.selected,
-                                          callback: function($$v) {
-                                            _vm.$set(props, "selected", $$v)
-                                          },
-                                          expression: "props.selected"
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    {
-                                      staticClass: "text-xs-left",
-                                      class: {
-                                        deleted: _vm.isDeleted(props.item)
-                                      }
-                                    },
-                                    [
-                                      _c(
-                                        "a",
-                                        {
-                                          on: {
-                                            click: function($event) {
-                                              _vm.edit(props.item)
-                                            }
-                                          }
-                                        },
-                                        [
-                                          _c("span", {
-                                            domProps: {
-                                              innerHTML: _vm._s(
-                                                _vm.highlight(
-                                                  props.item.first_name
-                                                )
-                                              )
-                                            }
-                                          }),
-                                          _vm._v(" "),
-                                          _c("span", {
-                                            domProps: {
-                                              innerHTML: _vm._s(
-                                                _vm.highlight(
-                                                  props.item.last_name
-                                                )
-                                              )
-                                            }
-                                          })
-                                        ]
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "div",
-                                        {
-                                          staticClass:
-                                            "body-1 grey--text text--lighten-1"
-                                        },
-                                        [
-                                          _c("span", {
-                                            domProps: {
-                                              innerHTML: _vm._s(
-                                                _vm.highlight(
-                                                  props.item.company.name || ""
-                                                )
-                                              )
-                                            }
-                                          })
-                                        ]
-                                      )
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    {
-                                      staticClass: "text-xs-left",
-                                      class: {
-                                        deleted: _vm.isDeleted(props.item)
-                                      }
-                                    },
-                                    [
-                                      _c("span", {
-                                        domProps: {
-                                          innerHTML: _vm._s(
-                                            _vm.highlight(props.item.email)
-                                          )
-                                        }
-                                      }),
-                                      _vm._v(" "),
-                                      _c(
-                                        "div",
-                                        {
-                                          staticClass:
-                                            "body-1 grey--text text--lighten-1"
-                                        },
-                                        [
-                                          _c("span", {
-                                            domProps: {
-                                              innerHTML: _vm._s(
-                                                _vm.highlight(props.item.phone)
-                                              )
-                                            }
-                                          })
-                                        ]
-                                      )
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    [
-                                      _c(
-                                        "v-speed-dial",
-                                        {
-                                          attrs: {
-                                            direction: "left",
-                                            "open-on-hover": "",
-                                            transition: "scale-transition"
-                                          }
-                                        },
+            "v-layout",
+            { attrs: { wrap: "", "mt-2": "" } },
+            [
+              _c(
+                "v-flex",
+                { attrs: { xs12: "" } },
+                [
+                  _c(
+                    "v-data-table",
+                    {
+                      attrs: {
+                        headers: _vm.headers,
+                        items: _vm.employees,
+                        "item-key": "id",
+                        "rows-per-page-items": [5, 10, 25],
+                        pagination: _vm.paginator,
+                        "total-items": _vm.paginator.totalItems
+                      },
+                      on: {
+                        "update:pagination": [
+                          function($event) {
+                            _vm.paginator = $event
+                          },
+                          _vm.loadEmployees
+                        ]
+                      },
+                      scopedSlots: _vm._u([
+                        {
+                          key: "items",
+                          fn: function(props) {
+                            return [
+                              _c("v-hover", {
+                                scopedSlots: _vm._u([
+                                  {
+                                    key: "default",
+                                    fn: function(ref) {
+                                      var hover = ref.hover
+                                      return _c(
+                                        "tr",
+                                        { attrs: { active: props.selected } },
                                         [
                                           _c(
-                                            "v-btn",
+                                            "td",
                                             {
-                                              attrs: {
-                                                slot: "activator",
-                                                color: "blue darken-2",
-                                                dark: "",
-                                                fab: "",
-                                                flat: ""
-                                              },
-                                              slot: "activator"
+                                              staticClass: "text-xs-left",
+                                              class: {
+                                                deleted: _vm.isDeleted(
+                                                  props.item
+                                                )
+                                              }
                                             },
                                             [
-                                              _c("v-icon", [
-                                                _vm._v("more_vert")
-                                              ])
-                                            ],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-tooltip",
-                                            { attrs: { top: "" } },
-                                            [
                                               _c(
-                                                "v-btn",
+                                                "a",
                                                 {
-                                                  attrs: {
-                                                    slot: "activator",
-                                                    fab: "",
-                                                    dark: "",
-                                                    small: "",
-                                                    color: "primary"
-                                                  },
                                                   on: {
                                                     click: function($event) {
                                                       _vm.edit(props.item)
                                                     }
-                                                  },
-                                                  slot: "activator"
+                                                  }
                                                 },
                                                 [
-                                                  _c("v-icon", [_vm._v("edit")])
-                                                ],
-                                                1
+                                                  _c("span", {
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.highlight(
+                                                          props.item.first_name
+                                                        )
+                                                      )
+                                                    }
+                                                  }),
+                                                  _vm._v(" "),
+                                                  _c("span", {
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.highlight(
+                                                          props.item.last_name
+                                                        )
+                                                      )
+                                                    }
+                                                  })
+                                                ]
                                               ),
                                               _vm._v(" "),
-                                              _c("span", [_vm._v("Edit")])
-                                            ],
-                                            1
+                                              _c(
+                                                "div",
+                                                {
+                                                  staticClass:
+                                                    "body-1 grey--text text--lighten-1"
+                                                },
+                                                [
+                                                  _c("span", {
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.highlight(
+                                                          _vm.companyName(
+                                                            props.item
+                                                          )
+                                                        )
+                                                      )
+                                                    }
+                                                  })
+                                                ]
+                                              )
+                                            ]
                                           ),
                                           _vm._v(" "),
                                           _c(
-                                            "v-tooltip",
-                                            { attrs: { top: "" } },
+                                            "td",
+                                            {
+                                              staticClass: "text-xs-left",
+                                              class: {
+                                                deleted: _vm.isDeleted(
+                                                  props.item
+                                                )
+                                              }
+                                            },
                                             [
-                                              !_vm.isDeleted(props.item)
-                                                ? _c(
+                                              _c("span", {
+                                                domProps: {
+                                                  innerHTML: _vm._s(
+                                                    _vm.highlight(
+                                                      props.item.email
+                                                    )
+                                                  )
+                                                }
+                                              }),
+                                              _vm._v(" "),
+                                              _c(
+                                                "div",
+                                                {
+                                                  staticClass:
+                                                    "body-1 grey--text text--lighten-1"
+                                                },
+                                                [
+                                                  _c("span", {
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        _vm.highlight(
+                                                          props.item.phone
+                                                        )
+                                                      )
+                                                    }
+                                                  })
+                                                ]
+                                              )
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "td",
+                                            [
+                                              _c(
+                                                "v-speed-dial",
+                                                {
+                                                  attrs: {
+                                                    direction: "left",
+                                                    "open-on-hover": "",
+                                                    transition:
+                                                      "scale-transition"
+                                                  }
+                                                },
+                                                [
+                                                  _c(
                                                     "v-btn",
                                                     {
                                                       attrs: {
                                                         slot: "activator",
-                                                        fab: "",
+                                                        color: "blue darken-2",
                                                         dark: "",
-                                                        small: "",
-                                                        color: "error"
-                                                      },
-                                                      on: {
-                                                        click: function(
-                                                          $event
-                                                        ) {
-                                                          _vm.softDelete(
-                                                            props.item
-                                                          )
-                                                        }
+                                                        fab: "",
+                                                        flat: ""
                                                       },
                                                       slot: "activator"
                                                     },
                                                     [
                                                       _c("v-icon", [
-                                                        _vm._v("delete")
+                                                        _vm._v("more_vert")
                                                       ])
                                                     ],
                                                     1
-                                                  )
-                                                : _vm._e(),
-                                              _vm._v(" "),
-                                              _c("span", [_vm._v("Delete")])
-                                            ],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-tooltip",
-                                            { attrs: { top: "" } },
-                                            [
-                                              _vm.isDeleted(props.item)
-                                                ? _c(
-                                                    "v-btn",
-                                                    {
-                                                      attrs: {
-                                                        slot: "activator",
-                                                        fab: "",
-                                                        dark: "",
-                                                        small: "",
-                                                        color: "success"
-                                                      },
-                                                      on: {
-                                                        click: function(
-                                                          $event
-                                                        ) {
-                                                          _vm.restore(
-                                                            props.item
-                                                          )
-                                                        }
-                                                      },
-                                                      slot: "activator"
-                                                    },
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "v-tooltip",
+                                                    { attrs: { top: "" } },
                                                     [
-                                                      _c("v-icon", [
-                                                        _vm._v("restore")
+                                                      _c(
+                                                        "v-btn",
+                                                        {
+                                                          attrs: {
+                                                            slot: "activator",
+                                                            fab: "",
+                                                            dark: "",
+                                                            small: "",
+                                                            color: "primary"
+                                                          },
+                                                          on: {
+                                                            click: function(
+                                                              $event
+                                                            ) {
+                                                              _vm.edit(
+                                                                props.item
+                                                              )
+                                                            }
+                                                          },
+                                                          slot: "activator"
+                                                        },
+                                                        [
+                                                          _c("v-icon", [
+                                                            _vm._v("edit")
+                                                          ])
+                                                        ],
+                                                        1
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c("span", [
+                                                        _vm._v("Edit")
+                                                      ])
+                                                    ],
+                                                    1
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "v-tooltip",
+                                                    { attrs: { top: "" } },
+                                                    [
+                                                      !_vm.isDeleted(props.item)
+                                                        ? _c(
+                                                            "v-btn",
+                                                            {
+                                                              attrs: {
+                                                                slot:
+                                                                  "activator",
+                                                                fab: "",
+                                                                dark: "",
+                                                                small: "",
+                                                                color: "error"
+                                                              },
+                                                              on: {
+                                                                click: function(
+                                                                  $event
+                                                                ) {
+                                                                  _vm.softDelete(
+                                                                    props.item
+                                                                  )
+                                                                }
+                                                              },
+                                                              slot: "activator"
+                                                            },
+                                                            [
+                                                              _c("v-icon", [
+                                                                _vm._v("delete")
+                                                              ])
+                                                            ],
+                                                            1
+                                                          )
+                                                        : _vm._e(),
+                                                      _vm._v(" "),
+                                                      _c("span", [
+                                                        _vm._v("Delete")
+                                                      ])
+                                                    ],
+                                                    1
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "v-tooltip",
+                                                    { attrs: { top: "" } },
+                                                    [
+                                                      _vm.isDeleted(props.item)
+                                                        ? _c(
+                                                            "v-btn",
+                                                            {
+                                                              attrs: {
+                                                                slot:
+                                                                  "activator",
+                                                                fab: "",
+                                                                dark: "",
+                                                                small: "",
+                                                                color: "success"
+                                                              },
+                                                              on: {
+                                                                click: function(
+                                                                  $event
+                                                                ) {
+                                                                  _vm.restore(
+                                                                    props.item
+                                                                  )
+                                                                }
+                                                              },
+                                                              slot: "activator"
+                                                            },
+                                                            [
+                                                              _c("v-icon", [
+                                                                _vm._v(
+                                                                  "restore"
+                                                                )
+                                                              ])
+                                                            ],
+                                                            1
+                                                          )
+                                                        : _vm._e(),
+                                                      _vm._v(" "),
+                                                      _c("span", [
+                                                        _vm._v("Restore")
                                                       ])
                                                     ],
                                                     1
                                                   )
-                                                : _vm._e(),
-                                              _vm._v(" "),
-                                              _c("span", [_vm._v("Restore")])
+                                                ],
+                                                1
+                                              )
                                             ],
                                             1
                                           )
-                                        ],
-                                        1
+                                        ]
                                       )
-                                    ],
-                                    1
-                                  )
-                                ]
-                              )
-                            }
+                                    }
+                                  }
+                                ])
+                              })
+                            ]
                           }
-                        ])
-                      })
-                    ]
-                  }
-                }
-              ]),
-              model: {
-                value: _vm.selected,
-                callback: function($$v) {
-                  _vm.selected = $$v
-                },
-                expression: "selected"
-              }
-            },
-            [
-              _c(
-                "v-alert",
-                {
-                  attrs: {
-                    slot: "no-results",
-                    value: true,
-                    color: "error",
-                    icon: "warning"
-                  },
-                  slot: "no-results"
-                },
-                [
-                  _vm._v(
-                    '\n                Your search for "' +
-                      _vm._s(_vm.query) +
-                      '" found no employees.\n                '
-                  ),
-                  !_vm.deleted
-                    ? _c("span", [
-                        _vm._v(
-                          " There may be deleted match, try enabling 'Show Deleted' above."
-                        )
-                      ])
-                    : _vm._e()
-                ]
+                        }
+                      ]),
+                      model: {
+                        value: _vm.selected,
+                        callback: function($$v) {
+                          _vm.selected = $$v
+                        },
+                        expression: "selected"
+                      }
+                    },
+                    [
+                      _c(
+                        "v-alert",
+                        {
+                          attrs: {
+                            slot: "no-results",
+                            value: true,
+                            color: "error",
+                            icon: "warning"
+                          },
+                          slot: "no-results"
+                        },
+                        [
+                          _vm._v(
+                            '\n                        Your search for "' +
+                              _vm._s(_vm.query) +
+                              '" found no employees.\n                        '
+                          ),
+                          !_vm.deleted
+                            ? _c("span", [
+                                _vm._v(
+                                  " There may be deleted match, try enabling 'Show Deleted' above."
+                                )
+                              ])
+                            : _vm._e()
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
               )
             ],
             1
@@ -4634,7 +4960,7 @@ var render = function() {
                             "headline font-weight-light text-uppercase white--text"
                         },
                         [
-                          _vm.isDeleted(_vm.currentEmployee)
+                          _vm.isDeleted(_vm.currentObj)
                             ? _c("span", [_vm._v("Restore")])
                             : _c("span", {
                                 domProps: { textContent: _vm._s(_vm.action) }
@@ -4684,8 +5010,9 @@ var render = function() {
                                     {
                                       ref: "form",
                                       attrs: {
-                                        "lazy-validation": "",
-                                        autocomplete: "off"
+                                        autocomplete: "off",
+                                        autofill: "off",
+                                        "lazy-validation": ""
                                       },
                                       model: {
                                         value: _vm.formIsValid,
@@ -4709,9 +5036,12 @@ var render = function() {
                                                 [
                                                   _c("v-text-field", {
                                                     attrs: {
+                                                      autofocus: _vm.creating,
+                                                      "browser-autocomplete":
+                                                        "off",
                                                       counter: "75",
                                                       disabled: _vm.isDeleted(
-                                                        _vm.currentEmployee
+                                                        _vm.currentObj
                                                       ),
                                                       "error-messages":
                                                         _vm.errorMessages,
@@ -4720,24 +5050,21 @@ var render = function() {
                                                       required: "",
                                                       rules: [
                                                         _vm.rules.required
-                                                      ],
-                                                      autofocus: _vm.creating,
-                                                      "browser-autocomplete":
-                                                        "off"
+                                                      ]
                                                     },
                                                     model: {
                                                       value:
-                                                        _vm.currentEmployee
+                                                        _vm.currentObj
                                                           .first_name,
                                                       callback: function($$v) {
                                                         _vm.$set(
-                                                          _vm.currentEmployee,
+                                                          _vm.currentObj,
                                                           "first_name",
                                                           $$v
                                                         )
                                                       },
                                                       expression:
-                                                        "currentEmployee.first_name"
+                                                        "currentObj.first_name"
                                                     }
                                                   })
                                                 ],
@@ -4752,9 +5079,11 @@ var render = function() {
                                                 [
                                                   _c("v-text-field", {
                                                     attrs: {
+                                                      "browser-autocomplete":
+                                                        "off",
                                                       counter: "75",
                                                       disabled: _vm.isDeleted(
-                                                        _vm.currentEmployee
+                                                        _vm.currentObj
                                                       ),
                                                       "error-messages":
                                                         _vm.errorMessages,
@@ -4763,24 +5092,21 @@ var render = function() {
                                                       required: "",
                                                       rules: [
                                                         _vm.rules.required
-                                                      ],
-                                                      autofocus: _vm.creating,
-                                                      "browser-autocomplete":
-                                                        "off"
+                                                      ]
                                                     },
                                                     model: {
                                                       value:
-                                                        _vm.currentEmployee
+                                                        _vm.currentObj
                                                           .last_name,
                                                       callback: function($$v) {
                                                         _vm.$set(
-                                                          _vm.currentEmployee,
+                                                          _vm.currentObj,
                                                           "last_name",
                                                           $$v
                                                         )
                                                       },
                                                       expression:
-                                                        "currentEmployee.last_name"
+                                                        "currentObj.last_name"
                                                     }
                                                   })
                                                 ],
@@ -4790,35 +5116,38 @@ var render = function() {
                                               _c(
                                                 "v-flex",
                                                 {
-                                                  attrs: { xs12: "", sm6: "" }
+                                                  attrs: {
+                                                    xs12: "",
+                                                    sm6: "",
+                                                    "mt-3": ""
+                                                  }
                                                 },
                                                 [
                                                   _c("v-text-field", {
                                                     attrs: {
+                                                      "browser-autocomplete":
+                                                        "off",
                                                       counter: "64",
                                                       disabled: _vm.isDeleted(
-                                                        _vm.currentEmployee
+                                                        _vm.currentObj
                                                       ),
                                                       label: "Email",
                                                       maxlength: "64",
-                                                      type: "email",
                                                       rules: [_vm.rules.email],
-                                                      "browser-autocomplete":
-                                                        "off"
+                                                      type: "email"
                                                     },
                                                     model: {
                                                       value:
-                                                        _vm.currentEmployee
-                                                          .email,
+                                                        _vm.currentObj.email,
                                                       callback: function($$v) {
                                                         _vm.$set(
-                                                          _vm.currentEmployee,
+                                                          _vm.currentObj,
                                                           "email",
                                                           $$v
                                                         )
                                                       },
                                                       expression:
-                                                        "currentEmployee.email"
+                                                        "currentObj.email"
                                                     }
                                                   })
                                                 ],
@@ -4828,42 +5157,95 @@ var render = function() {
                                               _c(
                                                 "v-flex",
                                                 {
-                                                  attrs: { xs12: "", sm6: "" }
+                                                  attrs: {
+                                                    xs12: "",
+                                                    sm6: "",
+                                                    "mt-3": ""
+                                                  }
                                                 },
                                                 [
                                                   _c("v-text-field", {
                                                     attrs: {
+                                                      "browser-autocomplete":
+                                                        "off",
                                                       counter: "50",
                                                       disabled: _vm.isDeleted(
-                                                        _vm.currentEmployee
+                                                        _vm.currentObj
                                                       ),
                                                       label: "Phone Number",
-                                                      maxlength: "50",
-                                                      "browser-autocomplete":
-                                                        "off"
+                                                      maxlength: "50"
                                                     },
                                                     model: {
                                                       value:
-                                                        _vm.currentEmployee
-                                                          .phone,
+                                                        _vm.currentObj.phone,
                                                       callback: function($$v) {
                                                         _vm.$set(
-                                                          _vm.currentEmployee,
+                                                          _vm.currentObj,
                                                           "phone",
                                                           $$v
                                                         )
                                                       },
                                                       expression:
-                                                        "currentEmployee.phone"
+                                                        "currentObj.phone"
                                                     }
                                                   })
                                                 ],
                                                 1
                                               ),
                                               _vm._v(" "),
-                                              _c("v-flex", {
-                                                attrs: { x12: "" }
-                                              })
+                                              _c(
+                                                "v-flex",
+                                                {
+                                                  attrs: { x12: "", "mt-3": "" }
+                                                },
+                                                [
+                                                  _c("v-autocomplete", {
+                                                    attrs: {
+                                                      autofill: "off",
+                                                      "browser-autocomplete":
+                                                        "off",
+                                                      clearable: "",
+                                                      disabled: _vm.isDeleted(
+                                                        _vm.currentObj
+                                                      ),
+                                                      items:
+                                                        _vm.autocompleteCompanies,
+                                                      "hide-no-data": "",
+                                                      "item-text": "name",
+                                                      "item-value": "id",
+                                                      label: "Company",
+                                                      loading: _vm.loading,
+                                                      placeholder:
+                                                        "Start typing to search",
+                                                      "return-object": "",
+                                                      rules: [_vm.rules.hasId],
+                                                      "search-input":
+                                                        _vm.companyAutocompleteSearch
+                                                    },
+                                                    on: {
+                                                      "update:searchInput": function(
+                                                        $event
+                                                      ) {
+                                                        _vm.companyAutocompleteSearch = $event
+                                                      }
+                                                    },
+                                                    model: {
+                                                      value:
+                                                        _vm.currentObj.company,
+                                                      callback: function($$v) {
+                                                        _vm.$set(
+                                                          _vm.currentObj,
+                                                          "company",
+                                                          $$v
+                                                        )
+                                                      },
+                                                      expression:
+                                                        "currentObj.company"
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              )
                                             ],
                                             1
                                           )
@@ -4882,14 +5264,34 @@ var render = function() {
                       ),
                       _vm._v(" "),
                       _c("small", [
-                        _vm.isDeleted(_vm.currentEmployee)
+                        _vm.isDeleted(_vm.currentObj)
                           ? _c(
                               "div",
                               { staticClass: "font-weight-bold mb-2" },
                               [
-                                _vm._v(
-                                  " You will need to restore this employee before you can be edited them."
-                                )
+                                _vm.currentObj.company.deleted
+                                  ? _c("div", [
+                                      _c("a", {
+                                        attrs: {
+                                          href:
+                                            "/app#/companies?d=1&q=" +
+                                            _vm.currentObj.company.name
+                                        },
+                                        domProps: {
+                                          textContent: _vm._s(
+                                            _vm.currentObj.company.name
+                                          )
+                                        }
+                                      }),
+                                      _vm._v(
+                                        " is currently deleted, you will need to restore this company before you can edit this employee.\n                            "
+                                      )
+                                    ])
+                                  : _c("div", [
+                                      _vm._v(
+                                        "\n                                You will need to restore this employee before they can be edited.\n                            "
+                                      )
+                                    ])
                               ]
                             )
                           : _vm._e(),
@@ -4906,7 +5308,7 @@ var render = function() {
                   _c(
                     "v-card-actions",
                     [
-                      _vm.isDeleted(_vm.currentEmployee)
+                      _vm.isDeleted(_vm.currentObj)
                         ? _c(
                             "v-btn",
                             {
@@ -4917,7 +5319,7 @@ var render = function() {
                               },
                               on: {
                                 click: function($event) {
-                                  _vm.restore(_vm.currentEmployee)
+                                  _vm.restore(_vm.currentObj)
                                 }
                               }
                             },
@@ -4938,7 +5340,7 @@ var render = function() {
                       _vm._v(" "),
                       _c("v-spacer"),
                       _vm._v(" "),
-                      !_vm.isDeleted(_vm.currentEmployee) && _vm.updating
+                      !_vm.isDeleted(_vm.currentObj) && _vm.updating
                         ? _c(
                             "v-btn",
                             {
@@ -4949,7 +5351,7 @@ var render = function() {
                               },
                               on: {
                                 click: function($event) {
-                                  _vm.softDelete(_vm.currentEmployee)
+                                  _vm.softDelete(_vm.currentObj)
                                 }
                               }
                             },
@@ -5052,11 +5454,18 @@ var render = function() {
           attrs: { raised: "", fluid: "" }
         },
         [
-          _vm.previewImage.src
-            ? _c("v-img", {
-                attrs: { src: _vm.previewImage.src, contain: true }
-              })
-            : _vm._e(),
+          _c(
+            "div",
+            { staticStyle: { "min-height": "385px !important" } },
+            [
+              _vm.previewImage.src
+                ? _c("v-img", {
+                    attrs: { src: _vm.previewImage.src, contain: true }
+                  })
+                : _vm._e()
+            ],
+            1
+          ),
           _vm._v(" "),
           _c(
             "v-card-actions",
@@ -5304,6 +5713,19 @@ function normalizeComponent (
 
 module.exports = {
   computed: {
+    autocompleteCompanies: function autocompleteCompanies() {
+      var self = this;
+      if (!_.has(self, 'companies') || !_.isArray(self.companies)) return [];
+      return self.companies.map(function (company) {
+        var description = '';
+
+        if (_.has(company, 'name') && company.name.length > self.companyNameLengthLimit) {
+          company.name = company.name.slice(0, self.companyNameLengthLimit) + '...';
+        }
+
+        return company;
+      });
+    },
     isLoading: function isLoading() {
       var self = this;
       return self.loading || self.saving || self.deleting || self.restoring;
@@ -5317,7 +5739,10 @@ module.exports = {
     return {
       collectionLoader: '',
       companies: [],
+      companyNameLengthLimit: 60,
+      companyAutocompleteSearch: '',
       currentObj: {},
+      deleted: 0,
       deleting: false,
       employees: [],
       noRecords: false,
@@ -5462,6 +5887,7 @@ module.exports = {
 
             if (_.has(data, 'companies') && !_.isEmpty(data.companies)) {
               _.each(data.companies, function (company) {
+                company.new_logo = '';
                 self.companies.push(company);
               });
 
@@ -5524,6 +5950,32 @@ module.exports = {
         flag: 'restoring'
       });
     },
+    searchCompanies: function searchCompanies() {
+      var self = this;
+      self.fetch({
+        url: '/companies/search',
+        data: {
+          deleted: 1,
+          q: self.companyAutocompleteSearch,
+          page: 1,
+          per_page: self.paginator.rowsPerPage
+        },
+        success: function success(_ref4) {
+          var data = _ref4.data;
+
+          if (_.has(data, 'status') && data.status == 'success') {
+            self.setValue(self, 'companies', []);
+
+            if (_.has(data, 'companies') && !_.isEmpty(data.companies)) {
+              _.each(data.companies, function (company) {
+                self.companies.push(company);
+              });
+            }
+          }
+        },
+        flag: 'loading'
+      });
+    },
     softDelete: function softDelete(obj) {
       var self = this;
       var obj = obj || null;
@@ -5533,8 +5985,8 @@ module.exports = {
         data: {
           id: obj.id
         },
-        success: function success(_ref4) {
-          var data = _ref4.data;
+        success: function success(_ref5) {
+          var data = _ref5.data;
 
           if (_.has(data, 'status') && data.status == 'success') {
             self.debouncedLoader(self.collectionLoader);
@@ -5546,6 +5998,10 @@ module.exports = {
     }
   },
   watch: {
+    companyAutocompleteSearch: function companyAutocompleteSearch() {
+      var self = this;
+      self.searchCompanies();
+    },
     reloadTrigger: function reloadTrigger() {
       var self = this;
       self.debouncedLoader(self.collectionLoader);
@@ -5565,8 +6021,7 @@ module.exports = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_companies__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/companies */ "./resources/js/components/companies.vue");
-/* harmony import */ var _components_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/dash */ "./resources/js/components/dash.vue");
-/* harmony import */ var _components_employees__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/employees */ "./resources/js/components/employees.vue");
+/* harmony import */ var _components_employees__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/employees */ "./resources/js/components/employees.vue");
 /**
  * Bootstrap that app. // That not the ccs lib :)
  */
@@ -5589,20 +6044,16 @@ Vue.use(VueRouter);
 
 
 
-
 var router = new VueRouter({
   routes: [{
-    path: '/',
-    component: _components_dash__WEBPACK_IMPORTED_MODULE_1__["default"]
-  }, {
     path: '/companies',
     component: _components_companies__WEBPACK_IMPORTED_MODULE_0__["default"]
   }, {
     path: '/employees',
-    component: _components_employees__WEBPACK_IMPORTED_MODULE_2__["default"]
+    component: _components_employees__WEBPACK_IMPORTED_MODULE_1__["default"]
   }, {
     path: '*',
-    redirect: '/'
+    redirect: '/companies'
   }]
 });
 var app = new Vue({
@@ -5802,75 +6253,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/dash.vue":
-/*!******************************************!*\
-  !*** ./resources/js/components/dash.vue ***!
-  \******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _dash_vue_vue_type_template_id_0915e95d___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dash.vue?vue&type=template&id=0915e95d& */ "./resources/js/components/dash.vue?vue&type=template&id=0915e95d&");
-/* harmony import */ var _dash_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dash.vue?vue&type=script&lang=js& */ "./resources/js/components/dash.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _dash_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _dash_vue_vue_type_template_id_0915e95d___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _dash_vue_vue_type_template_id_0915e95d___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "resources/js/components/dash.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "./resources/js/components/dash.vue?vue&type=script&lang=js&":
-/*!*******************************************************************!*\
-  !*** ./resources/js/components/dash.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_dash_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./dash.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/dash.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_dash_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/components/dash.vue?vue&type=template&id=0915e95d&":
-/*!*************************************************************************!*\
-  !*** ./resources/js/components/dash.vue?vue&type=template&id=0915e95d& ***!
-  \*************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_dash_vue_vue_type_template_id_0915e95d___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./dash.vue?vue&type=template&id=0915e95d& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/dash.vue?vue&type=template&id=0915e95d&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_dash_vue_vue_type_template_id_0915e95d___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_dash_vue_vue_type_template_id_0915e95d___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
 /***/ "./resources/js/components/employees.vue":
 /*!***********************************************!*\
   !*** ./resources/js/components/employees.vue ***!
@@ -6025,6 +6407,9 @@ module.exports = {
       rules: {
         required: function required(value) {
           return !!value || 'Required.';
+        },
+        hasId: function hasId(value) {
+          return !!_.has(value, 'id') || 'Required.';
         },
         email: function email(value) {
           var pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

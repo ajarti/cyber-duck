@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Company;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Intervention\Image\Facades\Image;
-use App\Http\Resources\CompanyTransformer;
-use App\Http\Requests\UpdateCompanyRequest;
+use App\Http\Requests\CompanySearchRequest;
+use App\Http\Requests\CreateCompanyRequest;
 use App\Http\Requests\DeleteCompanyRequest;
 use App\Http\Requests\RestoreCompanyRequest;
-
-use App\Http\Requests\CompanySearchRequest;
+use App\Http\Requests\UpdateCompanyRequest;
+use App\Http\Resources\CompanyTransformer;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 
 class CompanyController extends Controller
@@ -48,7 +50,11 @@ class CompanyController extends Controller
         // Make sure we have a company.
         if ( is_a($company, Company::class) ) {
             if ( $company->delete() ) {
-                return $this->sendAjaxMessage(['message' => $company->name . ' was deleted successfully']);
+
+                // Cascade the soft delete to the employees (can also put on db event.)
+                DB::table('employees')->whereCompanyId($company->id)->update(['deleted_at' => Carbon::now()]);
+
+                return $this->sendAjaxMessage(['message' => $company->name . ' was deleted successfully. N.B. All employees at this company where also deleted']);
             } else {
                 return $this->sendAjaxError(['message' => 'Oops, we could not delete that company something unkosher occurred']);
             }
@@ -122,7 +128,7 @@ class CompanyController extends Controller
         // Make sure we have a company.
         if ( is_a($company, Company::class) ) {
             if ( $company->restore() ) {
-                return $this->sendAjaxMessage(['message' => $company->name . ' was restored successfully']);
+                return $this->sendAjaxMessage(['message' => $company->name . ' was restored successfully, N.B. you will need to restore the employees manually']);
             } else {
                 return $this->sendAjaxError(['message' => 'Oops, we could not restore that company something unkosher occurred']);
             }
@@ -186,9 +192,57 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateCompanyRequest $request)
     {
-        //
+        // Create a Company
+        $company = $this->newModel();
+
+        // Update Company
+        if ( is_a($company, Company::class) ) {
+
+            $company->fill($request->only([
+                'email',
+                'logo',
+                'name',
+                'website'
+            ]));
+
+            // Save it all.
+            if ( $company->save() ) {
+
+                // Check for new logo
+                $newLogo = $request->get('new_logo', null);
+                if ( !is_null($newLogo) && strlen($newLogo) ) {
+                    $fileName = $this->updateLogo($request, $company);
+
+                    // Check if anything failed.
+                    if ( $fileName === false ) {
+                        return $this->sendAjaxError([], [
+                            'message' => 'We could not find the newly uploaded logo, please upload it again and try again or contact the admin to help.'
+                        ]);
+                    }
+
+                    // All Ok.
+                    $company->logo = $fileName;
+                    $company->save();
+                }
+
+                return $this->sendAjaxMessage(
+                    ['message' => $company->name . ' was created successfully.'],
+                    [
+                        'status'  => 'success',
+                        'company' => new CompanyTransformer($company),
+                    ]
+                );
+            }
+        }
+
+        // Something failed.
+        return $this->sendAjaxError([], [
+            'message' => 'We could not create this company, please try again'
+        ]);
+
+
     }
 
 
@@ -217,7 +271,7 @@ class CompanyController extends Controller
             ]));
 
             // Check if nothing changed.
-            if ( !$company->isDirty() ) {
+            if ( !$company->isDirty() && empty($request->new_logo) ) {
                 return $this->sendAjaxMessage(
                     ['message' => $company->name . ' was updated successfully.'],
                     ['status' => 'success']
@@ -225,7 +279,7 @@ class CompanyController extends Controller
             }
 
             // Check for new logo
-            $newLogo = $request->get('logoX', null);
+            $newLogo = $request->get('new_logo', null);
             if ( !is_null($newLogo) && strlen($newLogo) ) {
                 $fileName = $this->updateLogo($request, $company);
 
@@ -276,9 +330,9 @@ class CompanyController extends Controller
         // Setup paths.
         $uploadPath = storage_path('app/public');
         $logosPath = storage_path('app/public') . '/logos/';
-        $newLogoFile = $company->id . '_logo.png';
-        $squareLogoFile = 'square_' . $company->id . '_logo.png';
-        $uploadedLogoFullPath = $uploadPath . $request->get('new_logo', null);
+        $newLogoFile = 'logo_' . $company->id . '.png';
+        $squareLogoFile = 'square_logo_' . $company->id . '.png';
+        $uploadedLogoFullPath = $uploadPath . '/' . $request->get('new_logo', null);
         $squareLogoFullPath = $logosPath . $squareLogoFile;
         $newLogoFullPath = $logosPath . $newLogoFile;
 

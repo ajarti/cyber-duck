@@ -6,6 +6,6 @@ $factory->define(App\Company::class, function (Faker $faker) {
     return [
         'name'    => $faker->unique()->company,
         'email'   => $faker->unique()->email,
-        'website' => $faker->domainName,
+        'website' => 'http://'.$faker->domainName,
     ];
 });
