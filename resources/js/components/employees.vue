@@ -57,7 +57,7 @@
                                     <span v-html="highlight(props.item.last_name)"></span>
                                 </a>
                                 <div class="body-1 grey--text text--lighten-1">
-                                    <span v-html="highlight(props.item.company.name || '')"></span>
+                                    <!--<span v-html="highlight(props.item.company.name || '')"></span>-->
                                 </div>
                             </td>
                             <td class="text-xs-left" :class="{deleted : isDeleted(props.item)}">
@@ -217,21 +217,21 @@
                                                 </v-text-field>
                                             </v-flex>
                                             <v-flex x12>
-                                                <v-autocomplete
-                                                        v-model="currentEmployee.company_id"
-                                                        :items="companies"
-                                                        :loading="loading"
-                                                        :search-input.sync="companySearch"
-                                                        color="white"
-                                                        hide-no-data
-                                                        hide-selected
-                                                        item-text="Description"
-                                                        item-value="API"
-                                                        label="Public APIs"
-                                                        placeholder="Start typing to Search"
-                                                        prepend-icon="mdi-database-search"
-                                                        return-object
-                                                ></v-autocomplete>
+                                                <!--<v-autocomplete-->
+                                                        <!--v-model="currentEmployee.company_id"-->
+                                                        <!--:items="companies"-->
+                                                        <!--:loading="loading"-->
+                                                        <!--:search-input.sync="companySearch"-->
+                                                        <!--color="white"-->
+                                                        <!--hide-no-data-->
+                                                        <!--hide-selected-->
+                                                        <!--item-text="Description"-->
+                                                        <!--item-value="API"-->
+                                                        <!--label="Public APIs"-->
+                                                        <!--placeholder="Start typing to Search"-->
+                                                        <!--prepend-icon="mdi-database-search"-->
+                                                        <!--return-object-->
+                                                <!--&gt;</v-autocomplete>-->
                                             </v-flex>
                                         </v-layout>
                                     </v-form>
@@ -267,16 +267,18 @@
     export default {
         mixins   : [ajaxMixin, formMixin, sharedMethodsMixin],
         computed : {
-            items()
-            {
-                var self = this;
-                return self.companies.map(company => {
-                    const name = company.name.length > this.companyNameLengthLimit
-                        ? company.name.slice(0, this.companyNameLengthLimit) + '...'
-                        : company.name
-                    return Object.assign({}, company, { company });
-                })
-            }
+            // items()
+            // {
+            //     var self = this;
+            //     return self.companies.map(company => {
+            //         if (_.has(company,'name')){
+            //             const name = company.name.length > this.companyNameLengthLimit
+            //                 ? company.name.slice(0, this.companyNameLengthLimit) + '...'
+            //                 : company.name
+            //         }
+            //         return Object.assign({}, company, { company });
+            //     })
+            // }
         },
         data()
         {
