@@ -381,7 +381,8 @@
             {
                 var self    = this;
                 var company = company || null;
-                if ( _.isNull(company) || !_.has(company, 'logo' || _.isEmpty(company.logo)) ) {
+                window.log('companyLogo', company);
+                if ( _.isNull(company) || !_.has(company, 'logo') || _.isNull(company.logo) ) {
                     return '/logo/logo-placeholder.png';
                 }
                 return '/logo/square_' + company.logo + '?nc=' + Math.random();
