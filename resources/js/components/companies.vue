@@ -4,7 +4,7 @@
         <v-container>
             <v-layout wrap>
                 <v-flex class="xs12 font-weight-light display-1 py-4">
-                        COMPANIES
+                    COMPANIES
                 </v-flex>
                 <v-flex xs6>
                     <v-text-field
@@ -62,7 +62,7 @@
                                                 color="grey lighten-4"
                                                 tile
                                         >
-                                            <img :src="'/logo/square_'+props.item.logo+'?nc='+Math.random()">
+                                            <img :src="companyLogo(props.item)">
                                         </v-avatar>
                                     </td>
                                     <td class="text-xs-left" :class="{deleted : isDeleted(props.item)}">
@@ -265,7 +265,7 @@
                                  <v-btn small color="blue darken-1" flat @click="uploadPending = false" v-if="uploadPending">Ignore logo change</v-btn>
                             </span>
                             <v-btn :disabled="saving" color="blue darken-1" flat @click="save" v-else>
-                               Save
+                                Save
                             </v-btn>
 
                         </div>
@@ -376,6 +376,15 @@
                     self.setValue(self, 'closeWithPendingUpload', false);
                     self.setValue(self, 'showEditor', false);
                 }
+            },
+            companyLogo(company)
+            {
+                var self    = this;
+                var company = company || null;
+                if ( _.isNull(company) || !_.has(company, 'logo' || _.isEmpty(company.logo)) ) {
+                    return '/logo/logo-placeholder.png';
+                }
+                return '/logo/square_' + company.logo + '?nc=' + Math.random();
             },
             toggleUploadPending(status)
             {
