@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/employees/search', 'EmployeeController@search');
     Route::post('/employee/delete', 'EmployeeController@delete');
     Route::post('/employee/restore', 'EmployeeController@restore');
+    Route::post('/employee/update', 'EmployeeController@update');
 
 });
 

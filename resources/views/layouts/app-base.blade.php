@@ -21,10 +21,6 @@
         [v-cloak] {
             display: none !important;
         }
-
-        .card--flex-toolbar {
-            margin-top: -80px;
-        }
     </style>
     <link type="text/css" rel="stylesheet" href="//unpkg.com/vuetify@1.4.1/dist/vuetify.min.css"/>
     <link type="text/css" rel="stylesheet" href="{{ mix('css/styles.css') }}"/>

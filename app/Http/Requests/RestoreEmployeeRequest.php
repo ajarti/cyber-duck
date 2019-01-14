@@ -6,7 +6,7 @@ use Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 
-class RestoreCompanyRequest extends FormRequest
+class RestoreEmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,7 @@ class RestoreCompanyRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|integer|exists:companies,id'
+            'id' => 'required|integer|exists:employees,id'
         ];
     }
 
@@ -40,9 +40,9 @@ class RestoreCompanyRequest extends FormRequest
     public function messages()
     {
         return [
-            'id.required' => 'The company id is required',
-            'id.integer'  => 'The company id must be a number',
-            'id.exists'   => 'The company id does not exist',
+            'id.required' => 'The employee id is required',
+            'id.integer'  => 'The employee id must be a number',
+            'id.exists'   => 'The employee id does not exist',
         ];
     }
 }

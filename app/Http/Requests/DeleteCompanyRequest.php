@@ -40,7 +40,7 @@ class DeleteCompanyRequest extends FormRequest
     public function messages()
     {
         return [
-            'id.required' => 'The company id does not exist',
+            'id.required' => 'The company id is required',
             'id.integer'  => 'The company id must be a number',
             'id.exists'   => 'The company id does not exist',
         ];

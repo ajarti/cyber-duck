@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\EmployeeTransformer;
 use App\Http\Requests\EmployeeSearchRequest;
 use App\Http\Requests\DeleteEmployeeRequest;
+use App\Http\Requests\RestoreEmployeeRequest;
 
 class EmployeeController extends Controller
 {
@@ -50,6 +51,32 @@ class EmployeeController extends Controller
         }
     }
 
+
+    /**
+     * Restore the specified resource from the db.
+     *
+     * @param RestoreEmployeeRequest $request
+     * @param  \App\Employee         $employee
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
+    public function restore(RestoreEmployeeRequest $request, Employee $employee)
+    {
+        $employee = $employee->withTrashed()->find($request->get('id', 0));
+
+        // Make sure we have a employee.
+        if ( is_a($employee, Employee::class) ) {
+            if ( $employee->restore() ) {
+                return $this->sendAjaxMessage(['message' => $employee->first_name . ' was restored successfully']);
+            } else {
+                return $this->sendAjaxError(['message' => 'Oops, we could not restore that employee something unkosher occurred']);
+            }
+        } else {
+            return $this->sendAjaxError(['message' => 'We could not restore that employee as we could not locate them in the database']);
+        }
+    }
+    
 
     /**
      * Search the resource.

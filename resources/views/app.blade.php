@@ -48,7 +48,7 @@
 
                                         <v-divider></v-divider>
 
-                                        <v-card-text :style="{minHeight : (currentScreenHeight-150) + 'px'}">
+                                        <v-card-text class="pa-0" :style="{minHeight : (currentScreenHeight-150) + 'px'}">
                                             <router-view></router-view>
                                         </v-card-text>
                                     </v-card>
