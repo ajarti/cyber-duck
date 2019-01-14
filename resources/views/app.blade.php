@@ -1,7 +1,7 @@
 @extends('layouts.app-base')
 
 @section('override_css')
-    <link href="https://transloadit.edgly.net/releases/uppy/v0.27.5/dist/uppy.min.css" rel="stylesheet">
+    <link href="//transloadit.edgly.net/releases/uppy/v0.27.5/dist/uppy.min.css" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -77,6 +77,6 @@
 @endsection
 
 @section('javascripts')
-    <script src="https://transloadit.edgly.net/releases/uppy/v0.27.5/dist/uppy.min.js"></script>
+    <script src="//transloadit.edgly.net/releases/uppy/v0.27.5/dist/uppy.min.js"></script>
     <script src="{{ mix('js/app.js') }}"></script>
 @endsection

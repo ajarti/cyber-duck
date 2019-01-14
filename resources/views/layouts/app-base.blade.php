@@ -14,7 +14,7 @@
     <link rel="dns-prefetch" href="//unpkg.com">
 
     <!-- Fonts -->
-    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
 
     <!-- Styles -->
     <style>
@@ -36,8 +36,8 @@
         window.edb = {{ env('APP_DEBUG') ? 1 :  0 }};
     </script>
     {{--<script src="https://unpkg.com/vue@2.5.21/dist/vue.js"></script>--}}
-    <script src="https://unpkg.com/vue@2.5.21/dist/vue.min.js"></script>
-    <script src="https://unpkg.com/vue-router@3.0.2/dist/vue-router.min.js"></script>
+    <script src="//unpkg.com/vue@2.5.21/dist/vue.min.js"></script>
+    <script src="//unpkg.com/vue-router@3.0.2/dist/vue-router.min.js"></script>
     <script src="//unpkg.com/vuetify@1.4.1/dist/vuetify.min.js"></script>
     <script src="//unpkg.com/lodash@4.17.11/lodash.min.js"></script>
     <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
