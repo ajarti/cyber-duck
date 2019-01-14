@@ -342,8 +342,6 @@
                     })
                 }
 
-                window.log("Data:", data);
-
                 self.fetch({
                     url     : url,
                     data    : data,

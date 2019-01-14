@@ -27,7 +27,10 @@ class CompanySearchRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'deleted'  => 'integer|in:0,1',
+            'page'     => 'integer',
+            'per_page' => 'integer',
+            'q'        => 'max:50'
         ];
     }
 }

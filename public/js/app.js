@@ -2165,7 +2165,6 @@ Vue.component('cd-uploader', _components_uploader__WEBPACK_IMPORTED_MODULE_0__["
     companyLogo: function companyLogo(company) {
       var self = this;
       var company = company || null;
-      window.log('companyLogo', company);
 
       if (_.isNull(company) || !_.has(company, 'logo') || _.isNull(company.logo)) {
         return '/logo/logo-placeholder.png';
@@ -2618,7 +2617,6 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
 
-      window.log("Data:", data);
       self.fetch({
         url: url,
         data: data,
@@ -2831,7 +2829,6 @@ __webpack_require__.r(__webpack_exports__);
     },
     emit: function emit(emitType, message) {
       var self = this;
-      window.log('Emitting:', emitType, message);
       self.$emit(emitType, message);
     },
     prettyBytes: function prettyBytes(num) {
@@ -3006,8 +3003,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     // Reference this.
-    var self = this;
-    window.log('UPLAODER......'); // Clear
+    var self = this; // Clear
 
     window.localStorage.clear(); // Ensure Uploader is present.
 

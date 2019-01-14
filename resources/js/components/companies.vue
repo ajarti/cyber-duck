@@ -381,7 +381,6 @@
             {
                 var self    = this;
                 var company = company || null;
-                window.log('companyLogo', company);
                 if ( _.isNull(company) || !_.has(company, 'logo') || _.isNull(company.logo) ) {
                     return '/logo/logo-placeholder.png';
                 }

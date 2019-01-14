@@ -39,7 +39,9 @@ class AppController extends Controller
      */
     public function logo($logo = null)
     {
-        $logosPath = storage_path('app/public') . '/logos/';
+        $logosPath = public_path('storage/logos');
+        $img = Image::make($logosPath . 'logo-placeholder.png');
+
         if ( !is_null($logo) && strlen($logo) && File::exists($logosPath . $logo) ) {
             $img = Image::make($logosPath . $logo);
             return $img->response();

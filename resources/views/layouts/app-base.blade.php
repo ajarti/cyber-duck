@@ -35,8 +35,8 @@
     <script>
         window.edb = {{ env('APP_DEBUG') ? 1 :  0 }};
     </script>
-    <script src="https://unpkg.com/vue@2.5.21/dist/vue.js"></script>
-    {{--<script src="https://unpkg.com/vue@2.5.21/dist/vue.min.js"></script>--}}
+    {{--<script src="https://unpkg.com/vue@2.5.21/dist/vue.js"></script>--}}
+    <script src="https://unpkg.com/vue@2.5.21/dist/vue.min.js"></script>
     <script src="https://unpkg.com/vue-router@3.0.2/dist/vue-router.min.js"></script>
     <script src="//unpkg.com/vuetify@1.4.1/dist/vuetify.min.js"></script>
     <script src="//unpkg.com/lodash@4.17.11/lodash.min.js"></script>

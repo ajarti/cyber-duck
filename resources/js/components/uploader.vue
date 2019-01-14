@@ -171,7 +171,6 @@
             emit(emitType, message)
             {
                 var self = this;
-                window.log('Emitting:', emitType, message);
                 self.$emit(emitType, message);
             },
             prettyBytes(num)
@@ -356,7 +355,6 @@
         {
             // Reference this.
             var self = this;
-            window.log('UPLAODER......');
 
             // Clear
             window.localStorage.clear();
