@@ -4348,10 +4348,24 @@ var render = function() {
                                         ]
                                       ),
                                       _vm._v(" "),
-                                      _c("div", {
-                                        staticClass:
-                                          "body-1 grey--text text--lighten-1"
-                                      })
+                                      _c(
+                                        "div",
+                                        {
+                                          staticClass:
+                                            "body-1 grey--text text--lighten-1"
+                                        },
+                                        [
+                                          _c("span", {
+                                            domProps: {
+                                              innerHTML: _vm._s(
+                                                _vm.highlight(
+                                                  props.item.company.name || ""
+                                                )
+                                              )
+                                            }
+                                          })
+                                        ]
+                                      )
                                     ]
                                   ),
                                   _vm._v(" "),

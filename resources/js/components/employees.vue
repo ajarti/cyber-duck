@@ -57,7 +57,7 @@
                                     <span v-html="highlight(props.item.last_name)"></span>
                                 </a>
                                 <div class="body-1 grey--text text--lighten-1">
-                                    <!--<span v-html="highlight(props.item.company.name || '')"></span>-->
+                                    <span v-html="highlight(props.item.company.name || '')"></span>
                                 </div>
                             </td>
                             <td class="text-xs-left" :class="{deleted : isDeleted(props.item)}">
