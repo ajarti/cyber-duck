@@ -63,7 +63,7 @@ Laravel pagination has been used, but I have massaged the returned data to fit t
 Completed as mentioned above. 
 
 
-##Additional Functionality
+## Additional Functionality
 
 I have included some functionality over and above the specification. These features are:
 
