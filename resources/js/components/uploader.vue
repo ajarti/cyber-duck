@@ -432,8 +432,16 @@
 
                             self.previewImage.onload = function(){
 
+                                if ( (self.previewImage.width < 400) && ( self.previewImage.height < 400) ) {
+                                    self.emit('oops', 'Your image file is too small, it\'s ' + self.previewImage.width + 'px wide by ' + self.previewImage.height + 'px high and needs to be less at least 400px wide or high.');
+                                    Vue.nextTick(function(){
+                                        self.clearUploader();
+                                    });
+                                }
+
+
                                 if ( self.previewImage.width > self.maxWidth ) {
-                                    self.emit('oops', 'Your image file too wide, it\'s ' + self.previewImage.width + 'px wide and needs to be less than ' + self.maxWidth + 'px wide.');
+                                    self.emit('oops', 'Your image file is too wide, it\'s ' + self.previewImage.width + 'px wide and needs to be less than ' + self.maxWidth + 'px wide.');
                                     Vue.nextTick(function(){
                                         self.clearUploader();
                                     });
