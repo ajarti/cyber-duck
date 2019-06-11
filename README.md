@@ -4,10 +4,7 @@ Firstly many thanks for the opportunity to complete this exercise. I have deploy
 
 ## Task Requirements
 
-**Use https://adminlte.io/ as a framework for the application**
-
-I have used [Vuetify](https://vuetifyjs.com/), a Vue.js based css framework for the front end of the application bar the base Laravel login. This was OK'd with Danny & Gareth during our conference call.
-I have created a simple SPA (Single Page Application) as opposed to the traditional post-back method to demonstrate some of the more modern methods of building responsive applications, with regards to both speed (i.e. how 'snappy' the application is) as well as how well the application adapts to different screen dimensions.
+I have used [Vuetify](https://vuetifyjs.com/), a Vue.js based css framework for the front end of the application bar the base Laravel login. I have created a simple SPA (Single Page Application) as opposed to the traditional post-back method to demonstrate some of the more modern methods of building responsive applications, with regards to both speed (i.e. how 'snappy' the application is) as well as how well the application adapts to different screen dimensions.
 
 **Basic Laravel Auth: ability to log in as administrator**
 
